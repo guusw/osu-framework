@@ -187,7 +187,7 @@ namespace osu.Framework.Audio
             //we have successfully initialised a new device.
             CurrentAudioDevice = newDevice;
 
-            Bass.PlaybackBufferLength = 100;
+            Bass.PlaybackBufferLength = 50;
             Bass.UpdatePeriod = 5;
 
             return true;

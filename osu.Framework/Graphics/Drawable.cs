@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using osu.Framework.Allocation;
 using osu.Framework.DebugUtils;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Transformations;
@@ -18,11 +17,8 @@ using osu.Framework.Threading;
 using System.Threading;
 using System.Threading.Tasks;
 using osu.Framework.Caching;
-using osu.Framework.Graphics.Shaders;
 using osu.Framework.Logging;
-using osu.Framework.Platform;
 using osu.Framework.Statistics;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics.Colour;
 
 namespace osu.Framework.Graphics
