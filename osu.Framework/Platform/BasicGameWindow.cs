@@ -3,20 +3,37 @@
 
 using System;
 using System.Linq;
+using System.Text;
 using osu.Framework.Logging;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.ES11;
+using OpenTK.Graphics.OpenGL;
 using OpenTK.Input;
+using EnableCap = OpenTK.Graphics.OpenGL.EnableCap;
+using GetPName = OpenTK.Graphics.OpenGL.GetPName;
+using GL = OpenTK.Graphics.OpenGL.GL;
+using StringName = OpenTK.Graphics.OpenGL.StringName;
 
 namespace osu.Framework.Platform
 {
     public abstract class BasicGameWindow : GameWindow
     {
+#if DEBUG
+        public const bool DebuggingEnabled = true;
+        public const GraphicsContextFlags ContextFlags = GraphicsContextFlags.ForwardCompatible | GraphicsContextFlags.Debug;
+#else
+        public const bool DebuggingEnabled = false;
+        public const GraphicsContextFlags ContextFlags = GraphicsContextFlags.ForwardCompatible;
+#endif
+
         internal Version GLVersion;
         internal Version GLSLVersion;
 
-        public BasicGameWindow(int width, int height) : base(width, height)
+        public BasicGameWindow(int width, int height)
+            : base(width, height, GraphicsMode.Default, 
+                  "window", GameWindowFlags.Default, DisplayDevice.Default, 
+                  3, 2, ContextFlags)
         {
             Closing += (sender, e) => e.Cancel = ExitRequested?.Invoke() ?? false;
             Closed += (sender, e) => Exited?.Invoke();
@@ -48,13 +65,22 @@ namespace osu.Framework.Platform
             GL.Disable(EnableCap.StencilTest);
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.ScissorTest);
+            
+            string extensions = "";
+            int numExtensions = GL.GetInteger(GetPName.NumExtensions);
+            for(int i = 0; i < numExtensions;)
+            {
+                extensions += GL.GetString(StringNameIndexed.Extensions, i);
+                if(++i < numExtensions)
+                    extensions += " ";
+            }
 
             Logger.Log($@"GL Initialized
                         GL Version:                 {GL.GetString(StringName.Version)}
                         GL Renderer:                {GL.GetString(StringName.Renderer)}
                         GL Shader Language version: {GL.GetString(StringName.ShadingLanguageVersion)}
                         GL Vendor:                  {GL.GetString(StringName.Vendor)}
-                        GL Extensions:              {GL.GetString(StringName.Extensions)}", LoggingTarget.Runtime, LogLevel.Important);
+                        GL Extensions:              {extensions}", LoggingTarget.Runtime, LogLevel.Important);
 
             Context.MakeCurrent(null);
         }

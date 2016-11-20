@@ -6,7 +6,7 @@ using osu.Framework.Graphics.Containers;
 using System.Linq;
 using osu.Framework.Graphics.OpenGL;
 using osu.Framework.Graphics.Textures;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 using osu.Framework.Allocation;
 using osu.Framework.Platform;
 

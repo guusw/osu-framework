@@ -2,11 +2,11 @@
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using System.Drawing;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
-using PixelFormat = OpenTK.Graphics.ES30.PixelFormat;
+using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 
 namespace osu.Framework.Graphics.Textures
 {

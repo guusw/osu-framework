@@ -12,7 +12,7 @@ using osu.Framework.Graphics.Shaders;
 using osu.Framework.Threading;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Statistics;
 using osu.Framework.MathUtils;
@@ -49,6 +49,11 @@ namespace osu.Framework.Graphics.OpenGL
             resetScheduler.SetCurrentThread();
 
             MaxTextureSize = Math.Min(2048, GL.GetInteger(GetPName.MaxTextureSize));
+
+            // Create a global vertex array
+            int vertexArray;
+            GL.CreateVertexArrays(1, out vertexArray);
+            GL.BindVertexArray(vertexArray);
 
             GL.Disable(EnableCap.DepthTest);
             GL.Disable(EnableCap.StencilTest);

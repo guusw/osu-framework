@@ -7,7 +7,6 @@ using osu.Framework.Graphics.Batches;
 using osu.Framework.Graphics.OpenGL;
 using osu.Framework.Graphics.OpenGL.Buffers;
 using OpenTK;
-using OpenTK.Graphics.ES30;
 using OpenTK.Graphics;
 using osu.Framework.Threading;
 using osu.Framework.Graphics.Primitives;
@@ -15,6 +14,7 @@ using osu.Framework.Allocation;
 using osu.Framework.Graphics.Shaders;
 using System;
 using osu.Framework.Graphics.Colour;
+using OpenTK.Graphics.OpenGL;
 
 namespace osu.Framework.Graphics.Containers
 {
@@ -33,8 +33,8 @@ namespace osu.Framework.Graphics.Containers
 
         public RectangleF ScreenSpaceDrawRectangle;
         public QuadBatch<TexturedVertex2D> Batch;
-        public List<RenderbufferInternalFormat> Formats;
-
+        public List<RenderbufferStorage> Formats;
+        
         private InvokeOnDisposal establishFrameBufferViewport(Vector2 roundedSize)
         {
             // Disable masking for generating the frame buffer since masking will be re-applied

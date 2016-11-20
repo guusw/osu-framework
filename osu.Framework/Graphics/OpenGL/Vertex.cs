@@ -5,7 +5,7 @@ using System;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 
 namespace osu.Framework.Graphics.OpenGL
 {
@@ -103,6 +103,9 @@ namespace osu.Framework.Graphics.OpenGL
         public static void Bind()
         {
             Vertex.EnableAttributes(3);
+
+            var buffer = 0;
+            GL.GetInteger(GetPName.ArrayBufferBinding, out buffer);
 
             GL.VertexAttribPointer(0, 2, VertexAttribPointerType.Float, false, Stride, positionOffset);
             GL.VertexAttribPointer(1, 4, VertexAttribPointerType.Float, false, Stride, colourOffset);

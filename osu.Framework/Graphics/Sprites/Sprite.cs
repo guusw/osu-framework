@@ -14,8 +14,8 @@ namespace osu.Framework.Graphics.Sprites
 {
     public class Sprite : Drawable
     {
-        private Shader textureShader;
-        private Shader roundedTextureShader;
+        protected Shader TextureShader;
+        protected Shader RoundedTextureShader;
 
         public bool WrapTexture = false;
 
@@ -55,9 +55,9 @@ namespace osu.Framework.Graphics.Sprites
             n.Texture = Texture;
             n.WrapTexture = WrapTexture;
 
-            n.TextureShader = textureShader;
-            n.RoundedTextureShader = roundedTextureShader;
-            n.InflationAmount = inflationAmount;
+            n.TextureShader = TextureShader;
+            n.RoundedTextureShader = RoundedTextureShader;
+            n.InflationAmount = InflationAmount;
 
             base.ApplyDrawNode(node);
         }
@@ -65,11 +65,11 @@ namespace osu.Framework.Graphics.Sprites
         [BackgroundDependencyLoader]
         private void load(ShaderManager shaders)
         {
-            if (textureShader == null)
-                textureShader = shaders?.Load(new ShaderDescriptor(VertexShaderDescriptor.Texture2D, FragmentShaderDescriptor.Texture));
+            if (TextureShader == null)
+                TextureShader = shaders?.Load(new ShaderDescriptor(VertexShaderDescriptor.Texture2D, FragmentShaderDescriptor.Texture));
 
-            if (roundedTextureShader == null)
-                roundedTextureShader = shaders?.Load(new ShaderDescriptor(VertexShaderDescriptor.Texture2D, FragmentShaderDescriptor.TextureRounded));
+            if (RoundedTextureShader == null)
+                RoundedTextureShader = shaders?.Load(new ShaderDescriptor(VertexShaderDescriptor.Texture2D, FragmentShaderDescriptor.TextureRounded));
         }
 
         protected override bool CheckForcedPixelSnapping(Quad screenSpaceQuad)
@@ -101,12 +101,12 @@ namespace osu.Framework.Graphics.Sprites
             }
         }
 
-        private Vector2 inflationAmount;
+        protected Vector2 InflationAmount;
         protected override Quad ComputeScreenSpaceDrawQuad()
         {
             if (EdgeSmoothness == Vector2.Zero)
             {
-                inflationAmount = Vector2.Zero;
+                InflationAmount = Vector2.Zero;
                 return base.ComputeScreenSpaceDrawQuad();
             }
             else
@@ -118,8 +118,8 @@ namespace osu.Framework.Graphics.Sprites
 
                 Vector3 scale = DrawInfo.MatrixInverse.ExtractScale();
                 
-                inflationAmount = new Vector2(scale.X * EdgeSmoothness.X, scale.Y * EdgeSmoothness.Y);
-                return ToScreenSpace(DrawRectangle.Inflate(inflationAmount));
+                InflationAmount = new Vector2(scale.X * EdgeSmoothness.X, scale.Y * EdgeSmoothness.Y);
+                return ToScreenSpace(DrawRectangle.Inflate(InflationAmount));
             }
         }
 

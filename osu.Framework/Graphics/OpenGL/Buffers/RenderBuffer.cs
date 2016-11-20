@@ -4,21 +4,22 @@
 using System;
 using System.Collections.Generic;
 using OpenTK;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
 {
+
     public class RenderBuffer : IDisposable
     {
-        private static Dictionary<RenderbufferInternalFormat, Stack<RenderBufferInfo>> renderBufferCache = new Dictionary<RenderbufferInternalFormat, Stack<RenderBufferInfo>>();
+        private static Dictionary<RenderbufferStorage, Stack<RenderBufferInfo>> renderBufferCache = new Dictionary<RenderbufferStorage, Stack<RenderBufferInfo>>();
 
         public Vector2 Size = Vector2.One;
-        public RenderbufferInternalFormat Format { get; }
+        public RenderbufferStorage Format { get; }
 
         private RenderBufferInfo info;
         private bool isDisposed;
 
-        public RenderBuffer(RenderbufferInternalFormat format)
+        public RenderBuffer(RenderbufferStorage format)
         {
             Format = format;
         }
@@ -89,17 +90,18 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
                 switch (Format)
                 {
-                    case RenderbufferInternalFormat.DepthComponent16:
+                    case RenderbufferStorage.DepthComponent16:
                         GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, info.RenderBufferID);
                         break;
-                    case RenderbufferInternalFormat.Rgb565:
-                    case RenderbufferInternalFormat.Rgb5A1:
-                    case RenderbufferInternalFormat.Rgba4:
+                    case RenderbufferStorage.Rgba8:
+                    case RenderbufferStorage.Rgba4:
                         GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, RenderbufferTarget.Renderbuffer, info.RenderBufferID);
                         break;
-                    case RenderbufferInternalFormat.StencilIndex8:
+                    case RenderbufferStorage.StencilIndex8:
                         GL.FramebufferRenderbuffer(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment, RenderbufferTarget.Renderbuffer, info.RenderBufferID);
                         break;
+                    default:
+                        throw new InvalidOperationException("RenderBuffer format not supported");
                 }
 
                 GLWrapper.BindFrameBuffer(lastFrameBuffer);

@@ -2,7 +2,7 @@
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using System;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
 {

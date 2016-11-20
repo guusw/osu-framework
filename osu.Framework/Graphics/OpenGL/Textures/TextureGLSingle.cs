@@ -11,7 +11,7 @@ using osu.Framework.Graphics.Batches;
 using osu.Framework.Graphics.Primitives;
 using OpenTK;
 using OpenTK.Graphics;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;
 using osu.Framework.Statistics;
 using osu.Framework.Extensions.Color4Extensions;
@@ -292,12 +292,12 @@ namespace osu.Framework.Graphics.OpenGL.Textures
                             GLWrapper.BindTexture(this);
 
                         if (width == upload.Bounds.Width && height == upload.Bounds.Height || dataPointer == IntPtr.Zero)
-                            GL.TexImage2D(TextureTarget2d.Texture2D, upload.Level, TextureComponentCount.Srgb8Alpha8, width, height, 0, upload.Format, PixelType.UnsignedByte, dataPointer);
+                            GL.TexImage2D(TextureTarget.Texture2D, upload.Level, PixelInternalFormat.Srgb8Alpha8, width, height, 0, upload.Format, PixelType.UnsignedByte, dataPointer);
                         else
                         {
                             initializeLevel(upload.Level, width, height);
 
-                            GL.TexSubImage2D(TextureTarget2d.Texture2D, upload.Level, upload.Bounds.X, upload.Bounds.Y, upload.Bounds.Width, upload.Bounds.Height, upload.Format, PixelType.UnsignedByte,
+                            GL.TexSubImage2D(TextureTarget.Texture2D, upload.Level, upload.Bounds.X, upload.Bounds.Y, upload.Bounds.Width, upload.Bounds.Height, upload.Format, PixelType.UnsignedByte,
                                 dataPointer);
                         }
                     }
@@ -324,7 +324,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
                         int div = (int)Math.Pow(2, upload.Level);
 
-                        GL.TexSubImage2D(TextureTarget2d.Texture2D, upload.Level, upload.Bounds.X / div, upload.Bounds.Y / div, upload.Bounds.Width / div, upload.Bounds.Height / div, upload.Format,
+                        GL.TexSubImage2D(TextureTarget.Texture2D, upload.Level, upload.Bounds.X / div, upload.Bounds.Y / div, upload.Bounds.Width / div, upload.Bounds.Height / div, upload.Format,
                             PixelType.UnsignedByte, dataPointer);
                     }
                 }
@@ -337,8 +337,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
             if (didUpload && !manualMipmaps)
             {
-                GL.Hint(HintTarget.GenerateMipmapHint, HintMode.Nicest);
-                GL.GenerateMipmap(TextureTarget.Texture2D);
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
             }
 
             return didUpload;
@@ -358,7 +357,7 @@ namespace osu.Framework.Graphics.OpenGL.Textures
             }
 
             GCHandle h0 = GCHandle.Alloc(transparentWhite, GCHandleType.Pinned);
-            GL.TexImage2D(TextureTarget2d.Texture2D, level, TextureComponentCount.Srgb8Alpha8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, h0.AddrOfPinnedObject());
+            GL.TexImage2D(TextureTarget.Texture2D, level, PixelInternalFormat.Srgb8Alpha8, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, h0.AddrOfPinnedObject());
             h0.Free();
 
             //todo: figure why FBO clear method doesn't work.

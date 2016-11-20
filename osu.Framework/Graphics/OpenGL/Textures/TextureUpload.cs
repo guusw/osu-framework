@@ -4,7 +4,7 @@
 using System;
 using System.Drawing;
 using osu.Framework.Allocation;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 
 namespace osu.Framework.Graphics.OpenGL.Textures
 {

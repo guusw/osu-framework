@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using osu.Framework.Graphics.OpenGL.Textures;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 using osu.Framework.Graphics.Sprites;
 
 namespace osu.Framework.Graphics.Textures

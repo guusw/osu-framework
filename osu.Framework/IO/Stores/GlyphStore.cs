@@ -91,7 +91,7 @@ namespace osu.Framework.IO.Stores
             return new RawTexture
             {
                 Pixels = pixels,
-                PixelFormat = OpenTK.Graphics.ES30.PixelFormat.Rgba,
+                PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat.Rgba,
                 Width = width,
                 Height = height,
             };

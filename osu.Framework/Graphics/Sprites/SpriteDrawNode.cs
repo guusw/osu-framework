@@ -4,7 +4,7 @@
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 using osu.Framework.Graphics.Batches;
 using osu.Framework.Graphics.OpenGL;
 using OpenTK;
@@ -32,7 +32,7 @@ namespace osu.Framework.Graphics.Sprites
             if (Texture == null || Texture.IsDisposed)
                 return;
 
-            Shader shader = NeedsRoundedShader ? RoundedTextureShader : TextureShader;
+            Shader shader = TextureShader;
 
             if (InflationAmount != Vector2.Zero)
             {

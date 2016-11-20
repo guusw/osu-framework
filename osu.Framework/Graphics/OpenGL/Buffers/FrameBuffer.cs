@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using osu.Framework.Graphics.OpenGL.Textures;
 using OpenTK;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
 {
@@ -63,7 +63,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
 
                 Bind();
 
-                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget2d.Texture2D, Texture.TextureId, 0);
+                GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, TextureTarget.Texture2D, Texture.TextureId, 0);
                 GLWrapper.BindTexture(null);
 
                 Unbind();
@@ -97,7 +97,7 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
         /// Attaches a RenderBuffer to this framebuffer.
         /// </summary>
         /// <param name="format">The type of RenderBuffer to attach.</param>
-        public void Attach(RenderbufferInternalFormat format)
+        public void Attach(RenderbufferStorage format)
         {
             if (attachedRenderBuffers.Exists(r => r.Format == format))
                 return;

@@ -58,6 +58,10 @@ namespace osu.Framework
 
             if (IsWindows)
             {
+#if DEBUG
+				// Don't detect wine when debugging, it will crash RenderDoc
+				IsWine = false;
+#else
                 IntPtr hModule = GetModuleHandle(@"ntdll.dll");
                 if (hModule == IntPtr.Zero)
                     IsWine = false;
@@ -66,6 +70,7 @@ namespace osu.Framework
                     IntPtr fptr = GetProcAddress(hModule, @"wine_get_version");
                     IsWine = fptr != IntPtr.Zero;
                 }
+#endif
             }
         }
     }

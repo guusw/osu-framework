@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using osu.Framework.Graphics.Batches;
 using osu.Framework.Graphics.OpenGL;
 using osu.Framework.Graphics.OpenGL.Buffers;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 using osu.Framework.Threading;
 using OpenTK.Graphics;
 using osu.Framework.Graphics.Shaders;
@@ -59,7 +59,7 @@ namespace osu.Framework.Graphics.Containers
         private AtomicCounter forceRedraw = new AtomicCounter();
         private QuadBatch<TexturedVertex2D> quadBatch = new QuadBatch<TexturedVertex2D>(1, 3);
 
-        private List<RenderbufferInternalFormat> attachedFormats = new List<RenderbufferInternalFormat>();
+        private List<RenderbufferStorage> attachedFormats = new List<RenderbufferStorage>();
 
         protected override bool CanBeFlattened => false;
 
@@ -89,7 +89,7 @@ namespace osu.Framework.Graphics.Containers
             n.ScreenSpaceDrawRectangle = ScreenSpaceDrawQuad.AABBf;
             n.Batch = quadBatch;
             n.FrameBuffers = frameBuffers;
-            n.Formats = new List<RenderbufferInternalFormat>(attachedFormats);
+            n.Formats = new List<RenderbufferStorage>(attachedFormats);
 
             n.ForceRedraw = forceRedraw;
             n.BackgroundColour = BackgroundColour;
@@ -105,7 +105,7 @@ namespace osu.Framework.Graphics.Containers
             n.DrawInfo.Colour = base.DrawInfo.Colour;
         }
 
-        public void Attach(RenderbufferInternalFormat format)
+        public void Attach(RenderbufferStorage format)
         {
             if (attachedFormats.Exists(f => f == format))
                 return;

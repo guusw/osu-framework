@@ -4,7 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Reflection;
-using OpenTK.Graphics.ES30;
+using OpenTK.Graphics.OpenGL;
 using osu.Framework.Statistics;
 
 namespace osu.Framework.Graphics.OpenGL.Buffers
@@ -76,10 +76,11 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                 for (int i = 0; i < oldVertices.Length && i < Vertices.Length; ++i)
                     Vertices[i] = oldVertices[i];
 
-            if (GLWrapper.BindBuffer(BufferTarget.ArrayBuffer, vboId))
+            bool bindingChanged = GLWrapper.BindBuffer(BufferTarget.ArrayBuffer, vboId);
+            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(Vertices.Length * stride), IntPtr.Zero, usage);
+            if (bindingChanged)
                 bindAttributes();
 
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(Vertices.Length * stride), IntPtr.Zero, usage);
         }
 
         public virtual void Bind(bool forRendering)
