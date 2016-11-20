@@ -166,8 +166,9 @@ namespace osu.Framework.Graphics.Containers
 
         public virtual IEnumerable<T> Children
         {
-            get {
-                return Content != this ? Content.Children : children;
+            get
+            {
+                return Content != this ? Content?.Children : children;
             }
 
             set
