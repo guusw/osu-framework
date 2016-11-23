@@ -5,12 +5,11 @@ using osu.Framework.Timing;
 
 namespace osu.Framework.Graphics.Transformations
 {
-    public class TransformSize : TransformVector
+    public class TransformSize : TransformVector2D
     {
-        public override void Apply(Drawable d)
+        public override void Apply(ITransformable2D t)
         {
-            base.Apply(d);
-            d.Size = CurrentValue;
+            t.Size = CurrentValue;
         }
     }
 }

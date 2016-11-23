@@ -70,6 +70,20 @@ namespace osu.Framework.MathUtils
                 (float)ApplyEasing(easing, current, val1.Y, val2.Y - val1.Y, duration));
         }
 
+        public static Vector3 ValueAt(double time, Vector3 val1, Vector3 val2, double startTime, double endTime, EasingTypes easing = EasingTypes.None)
+        {
+            float current = (float)(time - startTime);
+            float duration = (float)(endTime - startTime);
+
+            if(duration == 0 || current == 0)
+                return val1;
+
+            return new Vector3(
+                (float)ApplyEasing(easing, current, val1.X, val2.X - val1.X, duration),
+                (float)ApplyEasing(easing, current, val1.Y, val2.Y - val1.Y, duration),
+                (float)ApplyEasing(easing, current, val1.Z, val2.Z - val1.Z, duration));
+        }
+
         public static RectangleF ValueAt(double time, RectangleF val1, RectangleF val2, double startTime, double endTime, EasingTypes easing = EasingTypes.None)
         {
             float current = (float)(time - startTime);
@@ -83,6 +97,17 @@ namespace osu.Framework.MathUtils
                 (float)ApplyEasing(easing, current, val1.Y, val2.Y - val1.Y, duration),
                 (float)ApplyEasing(easing, current, val1.Width, val2.Width - val1.Width, duration),
                 (float)ApplyEasing(easing, current, val1.Height, val2.Height - val1.Height, duration));
+        }
+
+        public static Quaternion ValueAt(double time, Quaternion val1, Quaternion val2, double startTime, double endTime, EasingTypes easing = EasingTypes.None)
+        {
+            float current = (float)(time - startTime);
+            float duration = (float)(endTime - startTime);
+
+            if(duration == 0 || current == 0)
+                return val1;
+
+            return Quaternion.Slerp(val1, val2, (float)ApplyEasing(easing, current, 0.0f, 1.0f, duration));
         }
 
         public static double ApplyEasing(EasingTypes easing, double time, double initial, double change, double duration)

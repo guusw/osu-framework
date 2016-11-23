@@ -28,10 +28,10 @@ namespace osu.Framework.Graphics.Transformations
             }
         }
 
-        public override void Apply(Drawable d)
+        public override void Apply(ITransformable t)
         {
-            base.Apply(d);
-            d.Colour = new SRGBColour { Linear = CurrentValue };
+            base.Apply(t);
+            t.Colour = new SRGBColour {Linear = CurrentValue};
         }
     }
 }

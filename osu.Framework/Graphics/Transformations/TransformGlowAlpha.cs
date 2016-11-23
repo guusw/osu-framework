@@ -7,10 +7,10 @@ namespace osu.Framework.Graphics.Transformations
 {
     public class TransformGlowAlpha : TransformFloat
     {
-        public override void Apply(Drawable d)
+        public override void Apply(ITransformable t)
         {
-            base.Apply(d);
-            Container c = d as Container;
+            base.Apply(t);
+            Container c = t as Container;
 
             EdgeEffect e = c.EdgeEffect;
             e.Colour.Linear.A = CurrentValue;

@@ -79,7 +79,7 @@ namespace osu.Framework.Graphics.Transformations
 
         public bool IsLoaded => true;
 
-        public virtual void Apply(Drawable d)
+        public virtual void Apply(ITransformable t)
         {
             if (Time?.Current > EndTime && LoopCount != CurrentLoopCount)
             {

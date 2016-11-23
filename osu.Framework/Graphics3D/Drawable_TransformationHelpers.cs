@@ -1,20 +1,29 @@
-﻿// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
+﻿// Copyright(c) 2016 Guus Waals (guus_waals@live.nl)
+// Licensed under the MIT License(MIT)
+// See "LICENSE.txt" for more information
+
+// Based on osu.Framework, adapted for 3D rendering
+
+// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using System;
 using System.Diagnostics;
-using osu.Framework.Extensions.IEnumerableExtensions;
+using System.Drawing;
+using osu.Framework.Graphics.Colour;
 using osu.Framework.Graphics.Transformations;
+using osu.Framework.Graphics3D.Transformations;
 using osu.Framework.Threading;
+using osu.Framework.Timing;
 using OpenTK;
 using OpenTK.Graphics;
-using osu.Framework.Extensions.Color4Extensions;
-using osu.Framework.Graphics.Colour;
-using osu.Framework.Timing;
+using TransformPosition = osu.Framework.Graphics3D.Transformations.TransformPosition;
+using TransformScale = osu.Framework.Graphics3D.Transformations.TransformScale;
 
-namespace osu.Framework.Graphics
+namespace osu.Framework.Graphics3D
 {
-    public partial class Drawable : IDisposable
+
+    public partial class Drawable
     {
         private double transformationDelay;
 
@@ -219,29 +228,29 @@ namespace osu.Framework.Graphics
             TransformFloatTo(Alpha, newAlpha, duration, easing, new TransformAlpha());
         }
 
-        public void RotateTo(float newRotation, double duration = 0, EasingTypes easing = EasingTypes.None)
-        {
-            UpdateTransformsOfType(typeof(TransformRotation));
-            TransformFloatTo(Rotation, newRotation, duration, easing, new TransformRotation());
-        }
-
         public void MoveToX(float destination, double duration = 0, EasingTypes easing = EasingTypes.None)
         {
             UpdateTransformsOfType(typeof(TransformPositionX));
-            TransformFloatTo(DrawPosition.X, destination, duration, easing, new TransformPositionX());
+            TransformFloatTo(Position.X, destination, duration, easing, new TransformPositionX());
         }
 
         public void MoveToY(float destination, double duration = 0, EasingTypes easing = EasingTypes.None)
         {
             UpdateTransformsOfType(typeof(TransformPositionY));
-            TransformFloatTo(DrawPosition.Y, destination, duration, easing, new TransformPositionY());
+            TransformFloatTo(Position.Y, destination, duration, easing, new TransformPositionY());
+        }
+
+        public void MoveToZ(float destination, double duration = 0, EasingTypes easing = EasingTypes.None)
+        {
+            UpdateTransformsOfType(typeof(TransformPositionZ));
+            TransformFloatTo(Position.Z, destination, duration, easing, new TransformPositionZ());
         }
 
         #endregion
 
         #region Vector2-based helpers
 
-        protected void TransformVectorTo(Vector2 startValue, Vector2 newValue, double duration, EasingTypes easing, TransformVector2D transform)
+        protected void TransformVectorTo(Vector3 startValue, Vector3 newValue, double duration, EasingTypes easing, TransformVector3D transform)
         {
             Type type = transform.GetType();
             if (transformationDelay == 0)
@@ -252,7 +261,7 @@ namespace osu.Framework.Graphics
                     return;
             }
             else
-                startValue = (Transforms.FindLast(t => t.GetType() == type) as TransformVector2D)?.EndValue ?? startValue;
+                startValue = (Transforms.FindLast(t => t.GetType() == type) as TransformVector3D)?.EndValue ?? startValue;
 
             double startTime = Clock != null ? (Time.Current + transformationDelay) : 0;
 
@@ -277,41 +286,29 @@ namespace osu.Framework.Graphics
                 Transforms.Add(transform);
             }
         }
-
+        
         public void ScaleTo(float newScale, double duration = 0, EasingTypes easing = EasingTypes.None)
         {
             UpdateTransformsOfType(typeof(TransformScale));
-            TransformVectorTo(Scale, new Vector2(newScale), duration, easing, new TransformScale());
+            TransformVectorTo(Scale, new Vector3(newScale), duration, easing, new TransformScale());
         }
 
-        public void ScaleTo(Vector2 newScale, double duration = 0, EasingTypes easing = EasingTypes.None)
+        public void ScaleTo(Vector3 newScale, double duration = 0, EasingTypes easing = EasingTypes.None)
         {
-            UpdateTransformsOfType(typeof(TransformScale));
+            UpdateTransformsOfType(typeof(Transformations.TransformScale));
             TransformVectorTo(Scale, newScale, duration, easing, new TransformScale());
         }
-
-        public void ResizeTo(float newSize, double duration = 0, EasingTypes easing = EasingTypes.None)
-        {
-            UpdateTransformsOfType(typeof(TransformSize));
-            TransformVectorTo(Size, new Vector2(newSize), duration, easing, new TransformSize());
-        }
-
-        public void ResizeTo(Vector2 newSize, double duration = 0, EasingTypes easing = EasingTypes.None)
-        {
-            UpdateTransformsOfType(typeof(TransformSize));
-            TransformVectorTo(Size, newSize, duration, easing, new TransformSize());
-        }
-
-        public void MoveTo(Vector2 newPosition, double duration = 0, EasingTypes easing = EasingTypes.None)
+        
+        public void MoveTo(Vector3 newPosition, double duration = 0, EasingTypes easing = EasingTypes.None)
         {
             UpdateTransformsOfType(typeof(TransformPosition));
-            TransformVectorTo(DrawPosition, newPosition, duration, easing, new TransformPosition());
+            TransformVectorTo(Position, newPosition, duration, easing, new TransformPosition());
         }
 
-        public void MoveToRelative(Vector2 offset, int duration = 0, EasingTypes easing = EasingTypes.None)
+        public void MoveToRelative(Vector3 offset, int duration = 0, EasingTypes easing = EasingTypes.None)
         {
             UpdateTransformsOfType(typeof(TransformPosition));
-            MoveTo((Transforms.FindLast(t => t is TransformPosition) as TransformPosition)?.EndValue ?? DrawPosition + offset, duration, easing);
+            MoveTo((Transforms.FindLast(t => t is TransformPosition) as TransformPosition)?.EndValue ?? Position + offset, duration, easing);
         }
 
         #endregion

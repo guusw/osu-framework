@@ -8,10 +8,22 @@ namespace osu.Framework.Graphics.Transformations
 {
     public class TransformPositionX : TransformFloat
     {
-        public override void Apply(Drawable d)
+        public override void Apply(ITransformable t)
         {
-            base.Apply(d);
-            d.Position = new Vector2(CurrentValue, d.Position.Y);
+            base.Apply(t);
+            var t1 = t as ITransformable2D;
+            if(t1 != null)
+            {
+                t1.Position = new Vector2(CurrentValue, t1.Position.Y);
+                return;
+            }
+
+            var t2 = t as ITransformable3D;
+            if(t2 != null)
+            {
+                t2.Position = new Vector3(CurrentValue, t2.Position.Y, t2.Position.Z);
+                return;
+            }
         }
     }
 }

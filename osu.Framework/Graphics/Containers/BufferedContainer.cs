@@ -182,12 +182,11 @@ namespace osu.Framework.Graphics.Containers
             TransformVectorTo(BlurSigma, newBlurSigma, duration, easing, new TransformBlurSigma());
         }
 
-        protected class TransformBlurSigma : TransformVector
+        protected class TransformBlurSigma : TransformVector2D
         {
-            public override void Apply(Drawable d)
+            public override void Apply(ITransformable2D t)
             {
-                base.Apply(d);
-                (d as BufferedContainer).BlurSigma = CurrentValue;
+                (t as BufferedContainer).BlurSigma = CurrentValue;
             }
         }
     }

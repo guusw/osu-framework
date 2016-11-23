@@ -23,7 +23,7 @@ using osu.Framework.Graphics.Colour;
 
 namespace osu.Framework.Graphics
 {
-    public abstract partial class Drawable : IDisposable, IHasLifetime, IDrawable
+    public abstract partial class Drawable : IDisposable, IHasLifetime, IDrawable, ITransformable2D
     {
         public event Action OnUpdate;
 

@@ -7,10 +7,12 @@ namespace osu.Framework.Graphics.Transformations
 {
     public class TransformRotation : TransformFloat
     {
-        public override void Apply(Drawable d)
+        public override void Apply(ITransformable t)
         {
-            base.Apply(d);
-            d.Rotation = CurrentValue;
+            base.Apply(t);
+            var t1 = t as ITransformable2D;
+            if(t1 != null)
+                t1.Rotation = CurrentValue;
         }
     }
 }

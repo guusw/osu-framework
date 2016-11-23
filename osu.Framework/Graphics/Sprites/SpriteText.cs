@@ -233,10 +233,10 @@ namespace osu.Framework.Graphics.Sprites
 
         public class TransformSpacing : TransformFloat
         {
-            public override void Apply(Drawable d)
+            public override void Apply(ITransformable t1)
             {
-                base.Apply(d);
-                SpriteText t = d as SpriteText;
+                base.Apply(t1);
+                SpriteText t = t1 as SpriteText;
 
                 t.SpacingOverlap = CurrentValue;
             }

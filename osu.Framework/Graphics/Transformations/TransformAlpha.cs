@@ -5,10 +5,10 @@ namespace osu.Framework.Graphics.Transformations
 {
     public class TransformAlpha : TransformFloat
     {
-        public override void Apply(Drawable d)
+        public override void Apply(ITransformable t)
         {
-            base.Apply(d);
-            d.Alpha = CurrentValue;
+            base.Apply(t);
+            t.Alpha = CurrentValue;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace osu.Framework.Graphics.Transformations
         double StartTime { get; set; }
         double EndTime { get; set; }
 
-        void Apply(Drawable d);
+        void Apply(ITransformable t);
 
         ITransform Clone();
         ITransform CloneReverse();

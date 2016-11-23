@@ -118,7 +118,7 @@ namespace osu.Framework.Graphics.Containers
                 GLWrapper.PushOrtho(ScreenSpaceDrawRectangle);
 
                 GLWrapper.ClearColour(BackgroundColour);
-                base.Draw(vertexBatch);
+                DrawContents(vertexBatch);
 
                 GLWrapper.PopOrtho();
             }
@@ -171,6 +171,15 @@ namespace osu.Framework.Graphics.Containers
 
                 currentFrameBufferIndex = 0;
             }
+        }
+
+        /// <summary>
+        /// Made overrideable to allow for custom drawining inside a buffered type container
+        /// </summary>
+        /// <param name="vertexBatch"></param>
+        protected virtual void DrawContents(IVertexBatch vertexBatch)
+        {
+            base.Draw(vertexBatch);
         }
 
         public override void Draw(IVertexBatch vertexBatch)
