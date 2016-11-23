@@ -41,23 +41,25 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
                 return;
             isDisposed = true;
 
-            Unbind();
-
-            GLWrapper.DeleteFramebuffer(frameBuffer);
-            frameBuffer = -1;
+            GLWrapper.ScheduleDisposal(delegate
+            {
+                Unbind();
+                GLWrapper.DeleteFramebuffer(frameBuffer);
+                frameBuffer = -1;
+            });
         }
 
         #endregion
 
         public bool IsInitialized { get; private set; }
 
-        public void Initialize(bool withTexture = true)
+        public void Initialize(bool withTexture = true, All filteringMode = All.Linear)
         {
             frameBuffer = GL.GenFramebuffer();
 
             if (withTexture)
             {
-                Texture = new TextureGLSingle(1, 1, true, All.Linear);
+                Texture = new TextureGLSingle(1, 1, true, filteringMode);
                 Texture.SetData(new TextureUpload(new byte[0]));
                 Texture.Upload();
 

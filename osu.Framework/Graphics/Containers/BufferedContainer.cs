@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
+// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using System.Collections.Generic;
@@ -14,6 +14,7 @@ using OpenTK;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Transformations;
+using System.Diagnostics;
 
 namespace osu.Framework.Graphics.Containers
 {
@@ -47,6 +48,17 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
+        private bool pixelSnapping;
+        public bool PixelSnapping
+        {
+            get { return pixelSnapping; }
+            set
+            {
+                Debug.Assert(!frameBuffers[0].IsInitialized && !frameBuffers[1].IsInitialized,
+                    "May only set PixelSnapping before FrameBuffers are initialized (i.e. before the first draw).");
+                pixelSnapping = value;
+            }
+        }
         private Shader blurShader;
 
         public bool CacheDrawnFrameBuffer = false;
@@ -56,8 +68,14 @@ namespace osu.Framework.Graphics.Containers
         // ping-pong fashion going back and forth (reading from one buffer, writing into the other).
         private FrameBuffer[] frameBuffers = new FrameBuffer[2];
 
-        // If this counter contains a value larger then 0, then we have to redraw.
-        private AtomicCounter forceRedraw = new AtomicCounter();
+        // In order to signal the draw thread to re-draw the buffered container we version it.
+        // Our own version (update) keeps track of which version we are on, whereas the
+        // drawVersion keeps track of the version the draw thread is on.
+        // When forcing a redraw we increment updateVersion, pass it into each new drawnode
+        // and the draw thread will realize its drawVersion is lagging behind, thus redrawing.
+        private long updateVersion = 0;
+        private AtomicCounter drawVersion = new AtomicCounter();
+
         private QuadBatch<TexturedVertex2D> quadBatch = new QuadBatch<TexturedVertex2D>(1, 3);
 
         private List<RenderbufferStorage> attachedFormats = new List<RenderbufferStorage>();
@@ -91,8 +109,10 @@ namespace osu.Framework.Graphics.Containers
             n.Batch = quadBatch;
             n.FrameBuffers = frameBuffers;
             n.Formats = new List<RenderbufferStorage>(attachedFormats);
+            n.FilteringMode = pixelSnapping ? All.Nearest : All.Linear;
 
-            n.ForceRedraw = forceRedraw;
+            n.DrawVersion = drawVersion;
+            n.UpdateVersion = updateVersion;
             n.BackgroundColour = BackgroundColour;
 
             n.BlurSigma = BlurSigma;
@@ -116,7 +136,7 @@ namespace osu.Framework.Graphics.Containers
 
         public void ForceRedraw()
         {
-            forceRedraw.Increment();
+            ++updateVersion;
             Invalidate(Invalidation.DrawNode);
         }
 

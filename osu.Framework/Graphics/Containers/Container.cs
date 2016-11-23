@@ -1,11 +1,10 @@
-﻿// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
+// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using osu.Framework.Lists;
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
-using System.Linq;
 using OpenTK;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.OpenGL;
@@ -13,10 +12,9 @@ using OpenTK.Graphics;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Extensions.IEnumerableExtensions;
 using osu.Framework.Graphics.Colour;
-using osu.Framework.Graphics.Sprites;
-using System.Threading.Tasks;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Transformations;
+using osu.Framework.Timing;
 
 namespace osu.Framework.Graphics.Containers
 {
@@ -194,6 +192,11 @@ namespace osu.Framework.Graphics.Containers
         public Container()
         {
             children = new LifetimeList<T>(DepthComparer);
+            children.Removed += obj =>
+            {
+                if (obj.DisposeOnRemove) obj.Dispose();
+            };
+
         }
 
         private MarginPadding padding;
@@ -361,6 +364,16 @@ namespace osu.Framework.Graphics.Containers
             return changed;
         }
 
+        internal override void UpdateClock(IFrameBasedClock clock)
+        {
+            if (Clock == clock)
+                return;
+
+            base.UpdateClock(clock);
+            foreach (Drawable child in InternalChildren)
+                child.UpdateClock(Clock);
+        }
+
         protected internal override bool UpdateSubTree()
         {
             if (!base.UpdateSubTree()) return false;
@@ -517,7 +530,11 @@ namespace osu.Framework.Graphics.Containers
                 return null;
 
             RectangleF childBounds = bounds;
-            if (Masking)
+            // If we are going to render a buffered container we need to make sure no children get masked away,
+            // even if they are off-screen.
+            if (this is BufferedContainer)
+                childBounds = ScreenSpaceDrawQuad.AABBf;
+            else if (Masking)
                 childBounds.Intersect(ScreenSpaceDrawQuad.AABBf);
 
             if (cNode.Children == null)
@@ -561,6 +578,16 @@ namespace osu.Framework.Graphics.Containers
             return this;
         }
 
+        public int IndexOf(T drawable)
+        {
+            return children.IndexOf(drawable);
+        }
+
+        public bool Contains(T drawable)
+        {
+            return IndexOf(drawable) >= 0;
+        }
+
         public override bool Contains(Vector2 screenSpacePos)
         {
             float cornerRadius = CornerRadius;
@@ -595,7 +622,7 @@ namespace osu.Framework.Graphics.Containers
         protected override void Dispose(bool isDisposing)
         {
             //this could cause issues if a child is referenced in more than one containers (or referenced for future use elsewhere).
-            if(Children != null)
+            if(Content != null && Children != null)
             {
                 var childrenToDispose = children.ToArray();
                 childrenToDispose.ForEach(c => c.Dispose());

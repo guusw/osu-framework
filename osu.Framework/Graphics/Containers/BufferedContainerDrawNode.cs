@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
+// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using System.Collections.Generic;
@@ -28,13 +28,14 @@ namespace osu.Framework.Graphics.Containers
 
         public Shader BlurShader;
 
-        // If this counter contains a value larger then 0, then we have to redraw.
-        public AtomicCounter ForceRedraw;
+        public AtomicCounter DrawVersion;
+        public long UpdateVersion = -1;
 
         public RectangleF ScreenSpaceDrawRectangle;
         public QuadBatch<TexturedVertex2D> Batch;
         public List<RenderbufferStorage> Formats;
-        
+        public All FilteringMode;
+
         private InvokeOnDisposal establishFrameBufferViewport(Vector2 roundedSize)
         {
             // Disable masking for generating the frame buffer since masking will be re-applied
@@ -63,7 +64,7 @@ namespace osu.Framework.Graphics.Containers
         private InvokeOnDisposal bindFrameBuffer(FrameBuffer frameBuffer, Vector2 requestedSize)
         {
             if (!frameBuffer.IsInitialized)
-                frameBuffer.Initialize();
+                frameBuffer.Initialize(true, FilteringMode);
 
             // These additional render buffers are only required if e.g. depth
             // or stencil information needs to also be stored somewhere.
@@ -174,9 +175,10 @@ namespace osu.Framework.Graphics.Containers
 
         public override void Draw(IVertexBatch vertexBatch)
         {
-            if (ForceRedraw.Reset() > 0)
+            Vector2 frameBufferSize = new Vector2((float)Math.Ceiling(ScreenSpaceDrawRectangle.Width), (float)Math.Ceiling(ScreenSpaceDrawRectangle.Height));
+            if (UpdateVersion > DrawVersion.Value || frameBufferSize != FrameBuffers[0].Size)
             {
-                Vector2 frameBufferSize = new Vector2((float)Math.Ceiling(ScreenSpaceDrawRectangle.Width), (float)Math.Ceiling(ScreenSpaceDrawRectangle.Height));
+                DrawVersion.Value = UpdateVersion;
 
                 using (establishFrameBufferViewport(frameBufferSize))
                 {
@@ -200,11 +202,15 @@ namespace osu.Framework.Graphics.Containers
                 finalizeFrameBuffer();
             }
 
+            RectangleF drawRectangle = FilteringMode == All.Nearest ?
+                new RectangleF(ScreenSpaceDrawRectangle.X, ScreenSpaceDrawRectangle.Y, frameBufferSize.X, frameBufferSize.Y) :
+                ScreenSpaceDrawRectangle;
+
             // Blit the final framebuffer to screen.
             GLWrapper.SetBlend(DrawInfo.Blending);
 
             Shader.Bind();
-            drawFrameBufferToBackBuffer(FrameBuffers[0], ScreenSpaceDrawRectangle, DrawInfo.Colour);
+            drawFrameBufferToBackBuffer(FrameBuffers[0], drawRectangle, DrawInfo.Colour);
             Shader.Unbind();
         }
     }
