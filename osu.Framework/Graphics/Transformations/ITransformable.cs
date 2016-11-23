@@ -14,11 +14,15 @@ namespace osu.Framework.Graphics.Transformations
         SRGBColour Colour { get; set; }
     }
 
+    public interface ITransformableSize : ITransformable
+    {
+        Vector2 Size { get; set; }
+    }
+
     public interface ITransformable2D : ITransformable
     {
         float Rotation { get; set; }
         Vector2 Scale { get; set; }
-        Vector2 Size { get; set; }
         Vector2 Position { get; set; }
     }
     

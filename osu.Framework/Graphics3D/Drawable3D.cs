@@ -22,20 +22,25 @@ using osu.Framework.Logging;
 using osu.Framework.Threading;
 using osu.Framework.Timing;
 using OpenTK;
+using OpenTK.Graphics;
 
 namespace osu.Framework.Graphics3D
 {
     /// <summary>
-    /// Drawable, but in 3D
+    /// Drawable3D, but in 3D
     /// </summary>
-    public abstract partial class Drawable : IDisposable, IHasLifetime, ITransformable3D
+    public abstract partial class Drawable3D : IDisposable, IHasLifetime, ITransformable3D
     {
         private static StopwatchClock Perf = new StopwatchClock(true);
         private const float VisiblityCutoff = 0.0001f;
-        
+
         public volatile LoadState LoadState;
 
-        private List<Drawable> children = new List<Drawable>();
+        private LifetimeList<Drawable3D> children = new LifetimeList<Drawable3D>(new Drawable3DComparer());
+
+        private LifetimeList<ITransform> transforms;
+
+        private Cached<BlendingInfo> blendingInfo = new Cached<BlendingInfo>();
 
         // Transformation components
         private Vector3 position = Vector3.Zero;
@@ -45,24 +50,38 @@ namespace osu.Framework.Graphics3D
         private Matrix4 toWorldMatrix = Matrix4.Identity;
         private Cached<Matrix4> worldMatrix = new Cached<Matrix4>();
         private bool isToWorldValid = true;
-        private SceneRoot root;
-        
+
+        private SceneRoot scene;
+
         private IFrameBasedClock customClock;
-        private IFrameBasedClock clock;
+
+        private ColourInfo colourInfo = ColourInfo.SingleColour(Color4.White);
 
         /// <summary>
         /// A lazily-initialized scheduler used to schedule tasks to be invoked in future Update calls.
         /// </summary>
         private Scheduler scheduler;
-        private Thread mainThread;
 
-        private LifetimeList<ITransform> transforms;
+        private Thread mainThread;
+        private Drawable3D parent;
         
+        private BlendingMode blendingMode;
+
         public void Dispose()
         {
             foreach(var child in children)
             {
                 child.Dispose();
+            }
+        }
+        
+        public BlendingMode BlendingMode
+        {
+            get { return blendingMode; }
+            set
+            {
+                blendingMode = value;
+                blendingInfo.Invalidate();
             }
         }
 
@@ -99,6 +118,7 @@ namespace osu.Framework.Graphics3D
             {
                 if(Parent == null)
                     return ToWorldMatrix;
+
                 return ToWorldMatrix * Parent.WorldMatrix;
             });
 
@@ -142,24 +162,35 @@ namespace osu.Framework.Graphics3D
             }
         }
 
-        public SceneRoot Root
+        public SceneRoot Scene
         {
-            get { return root; }
+            get { return scene; }
             protected set
             {
-                root = value; 
-                // Propagate root setting to children   
+                if(scene != null)
+                    OnRemovedFromScene();
+
+                scene = value;
+
+                // Propagate scene setting to children   
                 foreach(var child in Children)
-                    child.Root = root;
+                    child.Scene = scene;
+
+                if(value != null)
+                    OnAddedToScene();
             }
         }
 
-        public Drawable Parent { get; protected set; }
+        public Drawable3D Parent
+        {
+            get { return parent; }
+            protected set { parent = value; }
+        }
 
         /// <summary>
         /// The children of this drawable
         /// </summary>
-        public IEnumerable<Drawable> Children
+        public IEnumerable<Drawable3D> Children
         {
             get { return children; }
             set { Add(value); }
@@ -168,12 +199,29 @@ namespace osu.Framework.Graphics3D
         /// <summary>
         /// Transparency
         /// </summary>
-        public float Alpha { get; set; }
+        public float Alpha { get; set; } = 1.0f;
 
-        /// <summary>
-        /// Colour of this object
-        /// </summary>
-        public SRGBColour Colour { get; set; }
+        public ColourInfo ColourInfo
+        {
+            get { return colourInfo; }
+            set
+            {
+                if(colourInfo.Equals(value)) return;
+
+                colourInfo = value;
+            }
+        }
+
+        public SRGBColour Colour
+        {
+            get { return colourInfo.Colour; }
+            set
+            {
+                if(colourInfo.HasSingleColour && colourInfo.TopLeft.Equals(value)) return;
+
+                colourInfo.Colour = value;
+            }
+        }
 
         public bool IsVisible
         {
@@ -194,7 +242,7 @@ namespace osu.Framework.Graphics3D
         /// Override to add delayed load abilities (ie. using IsAlive)
         /// </summary>
         public virtual bool IsLoaded => LoadState >= LoadState.Loaded;
-        
+
         /// <summary>
         /// Whether this drawable is alive.
         /// </summary>
@@ -216,12 +264,8 @@ namespace osu.Framework.Graphics3D
 
         public IFrameBasedClock Clock
         {
-            get { return clock; }
-            set
-            {
-                customClock = value;
-                UpdateClock(customClock);
-            }
+            get { return customClock ?? Scene?.Clock; }
+            set { customClock = value; }
         }
 
         /// <summary>
@@ -234,13 +278,13 @@ namespace osu.Framework.Graphics3D
             get
             {
                 if(scheduler == null)
+
                     //mainThread could be null at this point.
                     scheduler = new Scheduler(mainThread);
 
                 return scheduler;
             }
         }
-
 
         /// <summary>
         /// The list of transforms applied to this drawable. Initialised on first access.
@@ -261,22 +305,17 @@ namespace osu.Framework.Graphics3D
 
         public bool UpdateSubTree()
         {
-            if(LoadState < LoadState.Alive)
-                if(!loadComplete())
-                    return false;
-
+            children.Update(Time);
+            
             transformationDelay = 0;
 
             UpdateTransforms();
 
+            foreach(var child in Children)
+                child.UpdateSubTree();
+
             if(!IsVisible)
                 return true;
-
-            // Construct valid local matrix
-            if(!isToWorldValid)
-            {
-                RefreshToWorldMatrix();
-            }
 
             Update();
 
@@ -287,13 +326,14 @@ namespace osu.Framework.Graphics3D
         /// Generates a list of drawnodes from this drawable and possible children
         /// </summary>
         /// <param name="target"></param>
-        public void GenerateDrawNodes(IList<DrawNode> target)
+        public void GenerateDrawNodes(IList<DrawNode3D> target)
         {
             // Generate a draw node for this object
             var drawNodeSelf = CreateDrawNode();
             if(drawNodeSelf != null)
             {
                 ApplyDrawNode(drawNodeSelf);
+                target.Add(drawNodeSelf);
             }
 
             // Generate child draw nodes
@@ -303,25 +343,25 @@ namespace osu.Framework.Graphics3D
             }
         }
 
-        public void Add(IEnumerable<Drawable> collection)
+        public void Add(IEnumerable<Drawable3D> collection)
         {
             foreach(var drawable in collection)
                 Add(drawable);
         }
 
-        public void Add(Drawable drawable)
+        public void Add(Drawable3D drawable)
         {
             children.Add(drawable);
             drawable.Parent = this;
-            drawable.Root = Root;
+            drawable.Scene = Scene;
         }
 
-        public void Remove(Drawable drawable, bool dispose = false)
+        public void Remove(Drawable3D drawable, bool dispose = false)
         {
             if(dispose)
                 drawable.Dispose();
             drawable.Parent = null;
-            drawable.Root = null;
+            drawable.Scene = null;
         }
 
         /// <summary>
@@ -333,36 +373,49 @@ namespace osu.Framework.Graphics3D
 
         public void UpdateTime(FrameTimeInfo time)
         {
-            throw new NotImplementedException();
         }
 
-        public Task Preload(BaseGame game, Action<Drawable> onLoaded = null)
+        public Task Preload(BaseGame game, Action<Drawable3D> onLoaded = null)
         {
             if(LoadState == LoadState.NotLoaded)
-                return Task.Run(() => PerformLoad(game)).ContinueWith(obj => game.Schedule(() => onLoaded?.Invoke(this)));
+                return Task.Run(() => PerformLoad(game))
+                    .ContinueWith(obj => game.Schedule(() => onLoaded?.Invoke(this)));
 
-            Debug.Assert(LoadState >= LoadState.Loaded, "Preload got called twice on the same Drawable.");
+            Debug.Assert(LoadState >= LoadState.Loaded, "Preload got called twice on the same Drawable3D.");
             onLoaded?.Invoke(this);
             return null;
         }
 
-        internal virtual void UpdateClock(IFrameBasedClock clock)
+        /// <summary>
+        /// Used to bootstrap loading from the 2d framework to 3d
+        /// </summary>
+        /// <param name="game"></param>
+        internal void LoadInternal(BaseGame game)
         {
-            this.clock = customClock ?? clock;
+            children.LoadRequested += i =>
+            {
+                i.PerformLoad(game);
+            };
         }
 
         /// <summary>
         /// Creates a draw node for this drawable
         /// </summary>
         /// <returns></returns>
-        protected abstract DrawNode CreateDrawNode();
+        protected abstract DrawNode3D CreateDrawNode();
 
         /// <summary>
         /// Apply this drawable to the draw node
         /// </summary>
         /// <param name="node">The node to apply properties to</param>
-        protected virtual void ApplyDrawNode(DrawNode node)
+        protected virtual void ApplyDrawNode(DrawNode3D node)
         {
+            node.WorldMatrix = WorldMatrix;
+
+            node.ColourInfo = ColourInfo;
+            if(node.ColourInfo.HasSingleColour)
+                node.ColourInfo = node.ColourInfo.MultiplyAlpha(Alpha);
+            node.Blending = blendingInfo.EnsureValid() ? blendingInfo.Value : blendingInfo.Refresh(() => new BlendingInfo(blendingMode));
         }
 
         protected virtual void OnWorldMatrixInvalidated()
@@ -390,16 +443,14 @@ namespace osu.Framework.Graphics3D
                 applyPivoting = true;
 
             if(applyPivoting)
-                toWorldMatrix = Matrix4.CreateTranslation(-rotationPivot);
+                toWorldMatrix = Matrix4.CreateTranslation(-rotationPivot) * Matrix4.CreateScale(scale) * Matrix4.CreateFromQuaternion(rotation) * Matrix4.CreateTranslation(position + rotationPivot);
             else
-                toWorldMatrix = Matrix4.Identity;
+                toWorldMatrix = Matrix4.CreateScale(scale) * Matrix4.CreateFromQuaternion(rotation) * Matrix4.CreateTranslation(position);
 
-            toWorldMatrix = Matrix4.CreateScale(scale) * Matrix4.CreateFromQuaternion(rotation) * toWorldMatrix;
-
-            if(applyPivoting)
-                toWorldMatrix = Matrix4.CreateTranslation(rotationPivot + position) * toWorldMatrix;
-            else
-                toWorldMatrix = Matrix4.CreateTranslation(position) * toWorldMatrix;
+            //if(applyPivoting)
+            //    toWorldMatrix =  * toWorldMatrix;
+            //else
+            //    toWorldMatrix = Matrix4.CreateTranslation(tra) * toWorldMatrix;
         }
 
         /// <summary>
@@ -410,7 +461,7 @@ namespace osu.Framework.Graphics3D
             isToWorldValid = false;
             InvalidateParentPosition();
         }
-        
+
         protected internal virtual void PerformLoad(BaseGame game)
         {
             switch(LoadState)
@@ -419,8 +470,10 @@ namespace osu.Framework.Graphics3D
                 case LoadState.Alive:
                     return;
                 case LoadState.Loading:
+
                     //loading on another thread
                     while(!IsLoaded) Thread.Sleep(1);
+
                     return;
                 case LoadState.NotLoaded:
                     LoadState = LoadState.Loading;
@@ -431,14 +484,10 @@ namespace osu.Framework.Graphics3D
             game.Dependencies.Initialize(this);
             double elapsed = Perf.CurrentTime - t1;
             if(elapsed > 50 && ThreadSafety.IsUpdateThread)
-                Logger.Log($@"Drawable [{ToString()}] took {elapsed:0.00}ms to load and was not async!", LoggingTarget.Performance);
+                Logger.Log($@"Drawable3D [{ToString()}] took {elapsed:0.00}ms to load and was not async!",
+                    LoggingTarget.Performance);
             LoadState = LoadState.Loaded;
         }
-
-        /// <summary>
-        /// Play initial animation etc.
-        /// </summary>
-        protected virtual void LoadComplete() { }
 
         protected void UpdateTransformsOfType(Type specificType)
         {
@@ -451,21 +500,14 @@ namespace osu.Framework.Graphics3D
             //        t.Apply(this);
         }
 
-        /// <summary>
-        /// Runs once on the update thread after loading has finished.
-        /// </summary>
-        private bool loadComplete()
+        protected virtual void OnAddedToScene()
         {
-            if(LoadState < LoadState.Loaded) return false;
+            
+        }
 
-            mainThread = Thread.CurrentThread;
-
-            scheduler?.SetCurrentThread(mainThread);
-
-            LifetimeStart = Time.Current;
-            LoadState = LoadState.Alive;
-            LoadComplete();
-            return true;
+        protected virtual void OnRemovedFromScene()
+        {
+            
         }
 
         /// <summary>
@@ -486,5 +528,13 @@ namespace osu.Framework.Graphics3D
         {
             t.Apply(this); //make sure we apply one last time.
         }
+    }
+
+    /// <summary>
+    /// A 3D object that just acts as a pivot, group or handle in 3D space
+    /// </summary>
+    public class Node : Drawable3D
+    {
+        protected override DrawNode3D CreateDrawNode() => null;
     }
 }

@@ -9,18 +9,6 @@ namespace osu.Framework.Graphics.Transformations
 {
     public abstract class TransformVector2D : Transform<Vector2>
     {
-        public override void Apply(ITransformable t)
-        {
-            base.Apply(t);
-            var t1 = t as ITransformable2D;
-            if(t1 != null)
-            {
-                Apply(t1);
-            }
-        }
-
-        public abstract void Apply(ITransformable2D t);
-
         protected override Vector2 CurrentValue
         {
             get

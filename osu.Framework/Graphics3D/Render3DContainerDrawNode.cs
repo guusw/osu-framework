@@ -8,14 +8,14 @@ using OpenTK.Graphics;
 
 namespace osu.Framework.Graphics3D
 {
-    public class ContainerDrawNode : BufferedContainerDrawNode
+    public class Render3DContainerDrawNode : BufferedContainerDrawNode
     {
         public SceneRootDrawNode Scene;
         public Color4 ClearColor;
 
         protected override void DrawContents(IVertexBatch vertexBatch)
         {
-            Scene.Draw();
+            Scene?.Draw(vertexBatch);
         }
     }
 }

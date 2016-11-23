@@ -7,6 +7,7 @@ using System.Text;
 using osu.Framework.Graphics.OpenGL;
 using OpenTK.Graphics.OpenGL;
 using System.Diagnostics;
+using System.Linq;
 
 namespace osu.Framework.Graphics.Shaders
 {
@@ -62,6 +63,7 @@ namespace osu.Framework.Graphics.Shaders
 
         internal void Compile()
         {
+
             parts.RemoveAll(p => p == null);
             uniforms.Clear();
             uniformsArray = null;
@@ -77,8 +79,10 @@ namespace osu.Framework.Graphics.Shaders
             foreach (ShaderPart p in parts)
             {
                 if (!p.Compiled) p.Compile();
-                GL.AttachShader(this, p);
+                if (p.Compiled) GL.AttachShader(this, p);
             }
+            if(parts.Any(x=>!x.Compiled))
+                return; // Compilation failed
 
             GL.BindAttribLocation(this, 0, "m_Position");
             GL.BindAttribLocation(this, 1, "m_Colour");

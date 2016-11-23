@@ -7,9 +7,13 @@ namespace osu.Framework.Graphics.Transformations
 {
     public class TransformPosition : TransformVector2D
     {
-        public override void Apply(ITransformable2D t)
+        public override void Apply(ITransformable t)
         {
-            t.Position = CurrentValue;
+            var t1 = t as ITransformable2D;
+            if(t1 != null)
+            {
+                t1.Position = CurrentValue;
+            }
         }
     }
 }

@@ -7,9 +7,13 @@ namespace osu.Framework.Graphics.Transformations
 {
     public class TransformSize : TransformVector2D
     {
-        public override void Apply(ITransformable2D t)
+        public override void Apply(ITransformable t)
         {
-            t.Size = CurrentValue;
+            var t1 = t as ITransformableSize;
+            if(t1 != null)
+            {
+                t1.Size = CurrentValue;
+            }
         }
     }
 }

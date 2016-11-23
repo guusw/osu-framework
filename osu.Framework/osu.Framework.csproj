@@ -103,18 +103,19 @@
     <Compile Include="GameModes\Testing\TestBrowser.cs" />
     <Compile Include="GameModes\Testing\TestCase.cs" />
     <Compile Include="Graphics3D\Camera.cs" />
-    <Compile Include="Graphics3D\Container.cs" />
-    <Compile Include="Graphics3D\ContainerDrawNode.cs" />
-    <Compile Include="Graphics3D\Drawable.cs" />
-    <Compile Include="Graphics3D\Drawable_TransformationHelpers.cs" />
-    <Compile Include="Graphics3D\DrawNode.cs" />
+    <Compile Include="Graphics3D\Drawable3DComparer.cs" />
+    <Compile Include="Graphics3D\Render3DContainer.cs" />
+    <Compile Include="Graphics3D\Render3DContainerDrawNode.cs" />
+    <Compile Include="Graphics3D\Drawable3D.cs" />
+    <Compile Include="Graphics3D\Drawable3D_TransformationHelpers.cs" />
+    <Compile Include="Graphics3D\DrawNode3D.cs" />
     <Compile Include="Graphics3D\SceneRoot.cs" />
     <Compile Include="Graphics3D\SceneRootDrawNode.cs" />
-    <Compile Include="Graphics3D\Sprite.cs" />
-    <Compile Include="Graphics3D\SpriteDrawNode.cs" />
+    <Compile Include="Graphics3D\Sprite3D.cs" />
+    <Compile Include="Graphics3D\SpriteDrawNode3D.cs" />
     <Compile Include="Graphics3D\Transformations\TransformPosition.cs" />
     <Compile Include="Graphics3D\Transformations\TransformPositionZ.cs" />
-    <Compile Include="Graphics3D\Transformations\TransformRotation.cs" />
+    <Compile Include="Graphics3D\Transformations\TransformRotation3D.cs" />
     <Compile Include="Graphics3D\Transformations\TransformScale.cs" />
     <Compile Include="Graphics3D\Transformations\TransformVector3D.cs" />
     <Compile Include="Graphics\BlendingInfo.cs" />
@@ -308,6 +309,7 @@
     <EmbeddedResource Include="Resources\Shaders\sh_Texture2D.vs" />
     <EmbeddedResource Include="Resources\Shaders\sh_Texture3D.vs" />
     <EmbeddedResource Include="Resources\Fonts\OpenSans.fnt" />
+    <EmbeddedResource Include="Resources\Shaders\sh_WorldViewProjection.vs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Fonts\LICENSE.txt" />

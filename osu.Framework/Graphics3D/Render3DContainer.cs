@@ -3,15 +3,17 @@
 // See "LICENSE.txt" for more information
 
 using System.Collections.Generic;
+using osu.Framework.Allocation;
+using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.Shaders;
+using osu.Framework.Timing;
 
 namespace osu.Framework.Graphics3D
 {
-    using BufferedContainer2D = Graphics.Containers.BufferedContainer;
-
     /// <summary>
     /// A drawable that contains objects rendered in 3D space
     /// </summary>
-    public class Container : BufferedContainer2D
+    public class Render3DContainer : BufferedContainer
     {
         /// <summary>
         /// 3D content
@@ -26,13 +28,34 @@ namespace osu.Framework.Graphics3D
         /// <summary>
         /// The 3D scene's root elements
         /// </summary>
-        public new IEnumerable<Drawable> Children
+        public new IEnumerable<Drawable3D> Children
         {
             get { return Content.Children; }
             set { Add(value); }
         }
+        
+        protected override osu.Framework.Graphics.DrawNode CreateDrawNode() => new Render3DContainerDrawNode();
 
-        protected override osu.Framework.Graphics.DrawNode CreateDrawNode() => new ContainerDrawNode();
+        internal override void UpdateClock(IFrameBasedClock clock)
+        {
+            Content.Clock = clock;
+            base.UpdateClock(clock);
+        }
+
+        public void Add(IEnumerable<Drawable3D> collection)
+        {
+            Content.Add(collection);
+        }
+
+        public void Add(Drawable3D drawable)
+        {
+            Content.Add(drawable);
+        }
+
+        public void Remove(Drawable3D drawable)
+        {
+            Content.Add(drawable);
+        }
 
         protected internal override bool UpdateSubTree()
         {
@@ -49,23 +72,14 @@ namespace osu.Framework.Graphics3D
         protected override void ApplyDrawNode(osu.Framework.Graphics.DrawNode node)
         {
             base.ApplyDrawNode(node);
-            var n = (ContainerDrawNode)node;
+            var n = (Render3DContainerDrawNode)node;
             n.Scene = Content.GenerateDrawNode();
         }
 
-        public void Add(IEnumerable<Drawable> collection)
+        [BackgroundDependencyLoader(permitNulls: true)]
+        private void Load(BaseGame game)
         {
-            Content.Add(collection);
-        }
-
-        public void Add(Drawable drawable)
-        {
-            Content.Add(drawable);
-        }
-
-        public void Remove(Drawable drawable)
-        {
-            Content.Add(drawable);
+            Content.LoadInternal(game);
         }
     }
 }

@@ -7,7 +7,7 @@ using OpenTK;
 
 namespace osu.Framework.Graphics3D
 {
-    public class Camera : Drawable
+    public class Camera : Drawable3D
     {
         private Cached<Matrix4> projectionMatrix = new Cached<Matrix4>();
         private Cached<Matrix4> viewMatrix = new Cached<Matrix4>();
@@ -21,11 +21,11 @@ namespace osu.Framework.Graphics3D
         /// Generates null, no need to draw the camera
         /// </summary>
         /// <returns></returns>
-        protected override DrawNode CreateDrawNode() => null;
+        protected override DrawNode3D CreateDrawNode() => null;
 
         public Camera()
         {
-            aspectRatio.Refresh(() => viewportSize.Y / viewportSize.X);
+            aspectRatio.Refresh(() => viewportSize.X / viewportSize.Y);
             projectionMatrix.Refresh(RefreshProjectionMatrix);
         }
 
@@ -118,6 +118,22 @@ namespace osu.Framework.Graphics3D
         {
             base.OnWorldMatrixInvalidated();
             viewMatrix.Invalidate();
+        }
+
+        protected override void OnAddedToScene()
+        {
+            base.OnAddedToScene();
+
+            // Auto-activate first camera
+            Scene.AddCamera(this);
+        }
+
+        protected override void OnRemovedFromScene()
+        {
+            base.OnRemovedFromScene();
+
+            // Unset scene camera
+            Scene.RemoveCamera(this);
         }
 
         private Matrix4 RefreshProjectionMatrix()

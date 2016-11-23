@@ -22,8 +22,7 @@ using TransformScale = osu.Framework.Graphics3D.Transformations.TransformScale;
 
 namespace osu.Framework.Graphics3D
 {
-
-    public partial class Drawable
+    public partial class Drawable3D
     {
         private double transformationDelay;
 
@@ -33,7 +32,7 @@ namespace osu.Framework.Graphics3D
             transforms?.Clear();
         }
 
-        public virtual Drawable Delay(double duration, bool propagateChildren = false)
+        public virtual Drawable3D Delay(double duration, bool propagateChildren = false)
         {
             if (duration == 0) return this;
 
@@ -70,7 +69,7 @@ namespace osu.Framework.Graphics3D
                 Transforms.RemoveAll(t => t.GetType() == flushType);
         }
 
-        public virtual Drawable DelayReset()
+        public virtual Drawable3D DelayReset()
         {
             Delay(-transformationDelay);
             return this;
@@ -248,7 +247,7 @@ namespace osu.Framework.Graphics3D
 
         #endregion
 
-        #region Vector2-based helpers
+        #region Vector3-based helpers
 
         protected void TransformVectorTo(Vector3 startValue, Vector3 newValue, double duration, EasingTypes easing, TransformVector3D transform)
         {
@@ -309,6 +308,53 @@ namespace osu.Framework.Graphics3D
         {
             UpdateTransformsOfType(typeof(TransformPosition));
             MoveTo((Transforms.FindLast(t => t is TransformPosition) as TransformPosition)?.EndValue ?? Position + offset, duration, easing);
+        }
+
+        #endregion
+
+        #region Quaternion-based helpers
+
+        protected void TransformQuaternionTo(Quaternion startValue, Quaternion newValue, double duration, EasingTypes easing, TransformRotation3D transform)
+        {
+            Type type = transform.GetType();
+            if(transformationDelay == 0)
+            {
+                Transforms.RemoveAll(t => t.GetType() == type);
+
+                if(startValue == newValue)
+                    return;
+            }
+            else
+                startValue = (Transforms.FindLast(t => t.GetType() == type) as TransformRotation3D)?.EndValue ?? startValue;
+
+            double startTime = Clock != null ? (Time.Current + transformationDelay) : 0;
+
+            transform.StartTime = startTime;
+            transform.EndTime = startTime + duration;
+            transform.StartValue = startValue;
+            transform.EndValue = newValue;
+            transform.Easing = easing;
+
+            if(Clock == null)
+            {
+                transform.UpdateTime(new FrameTimeInfo { Current = transform.EndTime });
+                transform.Apply(this);
+            }
+            else if(duration == 0 && transformationDelay == 0)
+            {
+                transform.UpdateTime(Time);
+                transform.Apply(this);
+            }
+            else
+            {
+                Transforms.Add(transform);
+            }
+        }
+
+        public void RotateTo(Quaternion newRotation, int duration = 0, EasingTypes easing = EasingTypes.None)
+        {
+            UpdateTransformsOfType(typeof(TransformPosition));
+            TransformQuaternionTo(Rotation, newRotation, duration, easing, new TransformRotation3D());
         }
 
         #endregion

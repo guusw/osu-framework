@@ -148,6 +148,7 @@ namespace osu.Framework.Graphics.Shaders
         Texture3D,
         Position,
         Colour,
+        WorldViewProjection,
     }
 
     public enum FragmentShaderDescriptor

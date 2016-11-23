@@ -184,7 +184,7 @@ namespace osu.Framework.Graphics.Containers
 
         protected class TransformBlurSigma : TransformVector2D
         {
-            public override void Apply(ITransformable2D t)
+            public override void Apply(ITransformable t)
             {
                 (t as BufferedContainer).BlurSigma = CurrentValue;
             }

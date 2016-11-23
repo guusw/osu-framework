@@ -8,7 +8,7 @@ using OpenTK;
 
 namespace osu.Framework.Graphics3D.Transformations
 {
-    public class TransformRotation : Transform<Quaternion>
+    public class TransformRotation3D : Transform<Quaternion>
     {
         protected override Quaternion CurrentValue {
             get
