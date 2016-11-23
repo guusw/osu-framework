@@ -5,6 +5,7 @@ using osu.Framework.Lists;
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
+using System.Linq;
 using OpenTK;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.OpenGL;
@@ -624,7 +625,7 @@ namespace osu.Framework.Graphics.Containers
             //this could cause issues if a child is referenced in more than one containers (or referenced for future use elsewhere).
             if(Content != null && Children != null)
             {
-                var childrenToDispose = children.ToArray();
+                var childrenToDispose = Children.ToArray();
                 childrenToDispose.ForEach(c => c.Dispose());
             }
 
