@@ -64,7 +64,7 @@ namespace osu.Framework.Audio.Track
                 Bass.ChannelSetAttribute(activeStream, ChannelAttribute.TempoSequenceMilliseconds, 30);
             }
 
-            Length = (Bass.ChannelBytes2Seconds(activeStream, Bass.ChannelGetLength(activeStream)));
+            Length = (Bass.ChannelBytes2Seconds(activeStream, Bass.ChannelGetLength(activeStream)) * 1000);
             Bass.ChannelGetAttribute(activeStream, ChannelAttribute.Frequency, out initialFrequency);
         }
 
@@ -126,7 +126,7 @@ namespace osu.Framework.Audio.Track
 
             if (clamped != CurrentTime)
             {
-                long pos = Bass.ChannelSeconds2Bytes(activeStream, clamped);
+                long pos = Bass.ChannelSeconds2Bytes(activeStream, clamped / 1000d);
                 Bass.ChannelSetPosition(activeStream, pos);
             }
 
@@ -137,8 +137,7 @@ namespace osu.Framework.Audio.Track
         {
             get
             {
-                if (Bass.ChannelIsActive(activeStream) == PlaybackState.Stopped) return 0;
-                double value = Bass.ChannelBytes2Seconds(activeStream, Bass.ChannelGetPosition(activeStream));
+                double value = Bass.ChannelBytes2Seconds(activeStream, Bass.ChannelGetPosition(activeStream)) * 1000;
                 if (value == Length && !isPlayed) return 0;
                 else return value;
             }
