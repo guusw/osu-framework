@@ -69,9 +69,9 @@ namespace osu.Framework.Input
         private bool isValidClick;
 
         /// <summary>
-        /// The input state from the previous frame.
+        /// The last processed state.
         /// </summary>
-        private InputState inputState = new InputState();
+        public InputState CurrentState = new InputState();
 
         /// <summary>
         /// The sequential list in which to handle mouse input.
@@ -120,29 +120,32 @@ namespace osu.Framework.Input
 
                     if (!hasKeyboard && !hasMouse) continue;
 
-                    var last = inputState;
+                    var last = CurrentState;
 
-                    inputState = new InputState
+                    CurrentState = new InputState
                     {
                         Last = last,
-                        Keyboard = hasKeyboard ? s.Keyboard : last.Keyboard ?? new KeyboardState(),
-                        Mouse = hasMouse ? s.Mouse : last.Mouse ?? new MouseState()
+                        Keyboard = s.Keyboard,
+                        Mouse = s.Mouse,
                     };
 
-                    TransformState(inputState);
+                    TransformState(CurrentState);
+
+                    if (CurrentState.Keyboard == null) CurrentState.Keyboard = last.Keyboard ?? new KeyboardState();
+                    if (CurrentState.Mouse == null) CurrentState.Mouse = last.Mouse ?? new MouseState();
 
                     //move above?
-                    updateInputQueues(inputState);
+                    updateInputQueues(CurrentState);
 
                     if (hasMouse)
                     {
                         (s.Mouse as MouseState)?.SetLast(last.Mouse); //necessary for now as last state is used internally for stuff
-                        updateHoverEvents(inputState);
-                        updateMouseEvents(inputState);
+                        updateHoverEvents(CurrentState);
+                        updateMouseEvents(CurrentState);
                     }
 
                     if (hasKeyboard)
-                        updateKeyboardEvents(inputState);
+                        updateKeyboardEvents(CurrentState);
                 }
 
                 keyboardRepeatTime -= Time.Elapsed;
@@ -353,7 +356,7 @@ namespace osu.Framework.Input
                 }
             }
 
-            if (mouse.Wheel != state.Last?.Mouse?.Wheel)
+            if (mouse.WheelDelta != 0)
                 handleWheel(state);
 
             if (mouse.HasMainButtonPressed)

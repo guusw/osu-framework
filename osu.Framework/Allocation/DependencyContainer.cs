@@ -31,7 +31,7 @@ namespace osu.Framework.Allocation
 
         private void Register(Type type, bool lazy)
         {
-            Debug.Assert(!activators.ContainsKey(type) && !cache.ContainsKey(type), $@"Type {type.FullName} should not be registered twice");
+            Debug.Assert(!activators.ContainsKey(type), $@"Type {type.FullName} should not be registered twice");
 
             var initialize = GetLoaderMethod(type);
             var constructor = type.GetConstructors().SingleOrDefault(c => c.GetParameters().Length == 0);
@@ -105,8 +105,9 @@ namespace osu.Framework.Allocation
         /// <summary>
         /// Caches an instance of a type. This instance will be returned each time you Get<T>.
         /// </summary>
-        public T Cache<T>(T instance = null, bool lazy = false) where T : class
+        public T Cache<T>(T instance = null, bool overwrite = false, bool lazy = false) where T : class
         {
+            Debug.Assert(overwrite || !cache.ContainsKey(typeof(T)), @"We have already cached one of these");
             if (instance == null)
                 instance = Get<T>(false, false);
             cacheable.Add(typeof(T));

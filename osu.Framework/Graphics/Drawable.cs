@@ -441,7 +441,17 @@ namespace osu.Framework.Graphics
             }
         }
 
-        public float Depth;
+        private float depth;
+        public float Depth
+        {
+            get { return depth; }
+            set
+            {
+                // TODO: Consider automatically resorting the parents children instead of simply forbidding this.
+                Debug.Assert(Parent == null, "May not change depth while inside a parent container.");
+                depth = value;
+            }
+        }
 
         private IFrameBasedClock customClock;
         private IFrameBasedClock clock;
@@ -797,6 +807,17 @@ namespace osu.Framework.Graphics
             return Quad.FromRectangle(input) * DrawInfo.Matrix;
         }
 
+        /// <summary>
+        /// Convert a position to the local coordinate system from either native or local to another drawable.
+        /// This is *not* the same space as the Position member variable (use Parent.GetLocalPosition() in this case).
+        /// </summary>
+        /// <param name="screenSpacePos">The input position.</param>
+        /// <returns>The output position.</returns>
+        public Vector2 ToLocalSpace(Vector2 screenSpacePos)
+        {
+            return screenSpacePos * DrawInfo.MatrixInverse;
+        }
+
         protected virtual bool CheckForcedPixelSnapping(Quad screenSpaceQuad)
         {
             return false;
@@ -804,9 +825,9 @@ namespace osu.Framework.Graphics
 
         internal void ChangeParent(IContainer parent)
         {
-            if (parent == Parent) return;
+            if (Parent == parent) return;
 
-            Debug.Assert(Parent == null);
+            Debug.Assert(Parent == null, "May not add a drawable to multiple containers.");
             Parent = parent;
         }
 

@@ -29,6 +29,8 @@ namespace osu.Framework
 
         public TextureStore Textures;
 
+        public override bool Contains(Vector2 screenSpacePos) => true;
+
         /// <summary>
         /// This should point to the main resource dll file. If not specified, it will use resources embedded in your executable.
         /// </summary>
@@ -73,15 +75,15 @@ namespace osu.Framework
 
         private void addDebugTools()
         {
-            AddInternal(DrawVisualiser = new DrawVisualiser()
+            (DrawVisualiser = new DrawVisualiser()
             {
                 Depth = float.MaxValue / 2,
-            });
+            }).Preload(this, AddInternal);
 
-            AddInternal(LogOverlay = new LogOverlay()
+            (LogOverlay = new LogOverlay()
             {
                 Depth = float.MaxValue / 2,
-            });
+            }).Preload(this, AddInternal);
         }
 
         /// <summary>
@@ -110,7 +112,6 @@ namespace osu.Framework
             Audio = Dependencies.Cache(new AudioManager(
                 new NamespacedResourceStore<byte[]>(Resources, @"Tracks"),
                 new NamespacedResourceStore<byte[]>(Resources, @"Samples")));
-            Dependencies.Cache(Audio);
 
             Shaders = new ShaderManager(new NamespacedResourceStore<byte[]>(Resources, @"Shaders"));
             Dependencies.Cache(Shaders);

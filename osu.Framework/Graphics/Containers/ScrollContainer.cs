@@ -190,6 +190,8 @@ namespace osu.Framework.Graphics.Containers
 
         protected override bool OnDrag(InputState state)
         {
+            Debug.Assert(isDragging, "We should never receive OnDrag if we are not dragging.");
+
             double currentTime = Time.Current;
             double timeDelta = currentTime - lastDragTime;
             double decay = Math.Pow(0.95, timeDelta);
@@ -199,7 +201,7 @@ namespace osu.Framework.Graphics.Containers
 
             lastDragTime = currentTime;
 
-            Vector2 childDelta = GetLocalPosition(state.Mouse.NativeState.Position) - GetLocalPosition(state.Mouse.NativeState.LastPosition);
+            Vector2 childDelta = ToLocalSpace(state.Mouse.NativeState.Position) - ToLocalSpace(state.Mouse.NativeState.LastPosition);
 
             // If we are dragging past the extent of the scrollable area, half the offset
             // such that the user can feel it.
@@ -207,13 +209,17 @@ namespace osu.Framework.Graphics.Containers
                 childDelta /= 2;
 
             offset(-childDelta.Y, false);
-            return base.OnDrag(state);
+            return true;
         }
 
         protected override bool OnDragEnd(InputState state)
         {
+            Debug.Assert(isDragging, "We should never receive OnDragEnd if we are not dragging.");
+
+            isDragging = false;
+
             if (averageDragTime <= 0.0)
-                return base.OnDragEnd(state);
+                return true;
 
             double velocity = averageDragDelta / averageDragTime;
 
@@ -229,9 +235,7 @@ namespace osu.Framework.Graphics.Containers
 
             offset((float)distance, true, DistanceDecayDrag);
 
-            isDragging = false;
-
-            return base.OnDragEnd(state);
+            return true;
         }
 
         protected override bool OnWheel(InputState state)
