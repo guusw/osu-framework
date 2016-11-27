@@ -81,8 +81,6 @@ namespace osu.Framework.Graphics.Shaders
                 if (!p.Compiled) p.Compile();
                 if (p.Compiled) GL.AttachShader(this, p);
             }
-            if(parts.Any(x=>!x.Compiled))
-                return; // Compilation failed
 
             GL.BindAttribLocation(this, 0, "m_Position");
             GL.BindAttribLocation(this, 1, "m_Colour");
@@ -98,10 +96,11 @@ namespace osu.Framework.Graphics.Shaders
 
             Log.AppendLine(string.Format(ShaderPart.BOUNDARY, name));
             Log.AppendLine(string.Format("Linked: {0}", linkResult == 1));
-            if (linkResult == 0)
+            if(linkResult == 0)
             {
                 Log.AppendLine("Log:");
                 Log.AppendLine(linkLog);
+                Debug.WriteLine(linkLog);
             }
 
             foreach (var part in parts)

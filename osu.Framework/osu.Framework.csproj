@@ -104,6 +104,13 @@
     <Compile Include="GameModes\Testing\TestCase.cs" />
     <Compile Include="Graphics3D\Camera.cs" />
     <Compile Include="Graphics3D\Drawable3DComparer.cs" />
+    <Compile Include="Graphics3D\Particles\ComputedProperties.cs" />
+    <Compile Include="Graphics3D\Particles\Initializers.cs" />
+    <Compile Include="Graphics3D\Particles\ParticleParameter.cs" />
+    <Compile Include="Graphics3D\Particles\ParticleBufferAccessor.cs" />
+    <Compile Include="Graphics3D\Particles\ParticleSystem.cs" />
+    <Compile Include="Graphics3D\Particles\ParticleSystemDrawNode.cs" />
+    <Compile Include="Graphics3D\Particles\Updaters.cs" />
     <Compile Include="Graphics3D\Render3DContainer.cs" />
     <Compile Include="Graphics3D\Render3DContainerDrawNode.cs" />
     <Compile Include="Graphics3D\Drawable3D.cs" />
@@ -131,6 +138,8 @@
     <Compile Include="Graphics\Containers\ContainerDrawNode.cs" />
     <Compile Include="Graphics\Cursor\CursorContainer.cs" />
     <Compile Include="Graphics\IDrawable.cs" />
+    <Compile Include="Graphics\OpenGL\Textures\BufferTextureGL.cs" />
+    <Compile Include="Graphics\Primitives\Quad3D.cs" />
     <Compile Include="Graphics\Transformations\ITransformable.cs" />
     <Compile Include="Graphics\ProxyDrawable.cs" />
     <Compile Include="Graphics\Sprites\Box.cs" />
@@ -310,6 +319,7 @@
     <EmbeddedResource Include="Resources\Shaders\sh_Texture3D.vs" />
     <EmbeddedResource Include="Resources\Fonts\OpenSans.fnt" />
     <EmbeddedResource Include="Resources\Shaders\sh_WorldViewProjection.vs" />
+    <EmbeddedResource Include="Resources\Shaders\sh_InstancedParticle.vs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\Fonts\LICENSE.txt" />

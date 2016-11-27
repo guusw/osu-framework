@@ -34,6 +34,8 @@ namespace osu.Framework.Graphics.Shaders
 
         public bool HasChanged { get; private set; } = true;
 
+        public bool IsArray { get; private set; }
+
         private Shader owner;
 
         public UniformBase(Shader owner, string name, int uniformLocation, ActiveUniformType type)
@@ -41,6 +43,7 @@ namespace osu.Framework.Graphics.Shaders
             this.owner = owner;
             Name = name;
             location = uniformLocation;
+            IsArray = name.EndsWith("[0]");
             this.type = type;
         }
 

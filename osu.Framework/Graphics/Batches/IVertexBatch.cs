@@ -7,6 +7,8 @@ namespace osu.Framework.Graphics.Batches
     {
         int Draw();
 
+        int DrawInstanced(int instanceCount);
+
         void ResetCounters();
     }
 }

@@ -33,7 +33,7 @@ namespace osu.Framework.Graphics3D
             get { return Content.Children; }
             set { Add(value); }
         }
-        
+
         protected override osu.Framework.Graphics.DrawNode CreateDrawNode() => new Render3DContainerDrawNode();
 
         internal override void UpdateClock(IFrameBasedClock clock)
@@ -66,7 +66,10 @@ namespace osu.Framework.Graphics3D
         protected override void UpdateLayout()
         {
             base.UpdateLayout();
-            Camera.ViewportSize = DrawSize;
+
+            // Update viewport size on camera
+            if(Camera != null)
+                Camera.ViewportSize = DrawSize;
         }
 
         protected override void ApplyDrawNode(osu.Framework.Graphics.DrawNode node)
@@ -79,7 +82,7 @@ namespace osu.Framework.Graphics3D
         [BackgroundDependencyLoader(permitNulls: true)]
         private void Load(BaseGame game)
         {
-            Content.LoadInternal(game);
+            Content.PerformLoad(game);
         }
     }
 }

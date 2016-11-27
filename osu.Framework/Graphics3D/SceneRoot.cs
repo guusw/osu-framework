@@ -4,6 +4,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using osu.Framework.Timing;
 
 namespace osu.Framework.Graphics3D
 {
@@ -18,7 +19,9 @@ namespace osu.Framework.Graphics3D
         /// The camera used to render all elements in this scene
         /// </summary>
         public Camera Camera { get; private set; }
-        
+
+        public override IFrameBasedClock Clock => CustomClock;
+
         protected override DrawNode3D CreateDrawNode() => new SceneRootDrawNode();
 
         public SceneRoot()
@@ -37,7 +40,7 @@ namespace osu.Framework.Graphics3D
 
             if(Camera == null)
                 return null;
-
+            
             n.ViewMatrix = Camera.ViewMatrix;
             n.InverseViewMatrix = Camera.InverseViewMatrix;
             n.ProjectionMatrix = Camera.ProjectionMatrix;
@@ -48,6 +51,8 @@ namespace osu.Framework.Graphics3D
                 child.GenerateDrawNodes(n.Children);
             }
 
+            n.Sort();
+
             return n;
         }
 
@@ -56,6 +61,7 @@ namespace osu.Framework.Graphics3D
             cameras.Add(camera);
             UpdatePrimaryCamera();
         }
+
         internal void RemoveCamera(Camera camera)
         {
             cameras.Remove(camera);

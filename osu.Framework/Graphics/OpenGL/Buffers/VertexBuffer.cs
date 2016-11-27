@@ -122,6 +122,16 @@ namespace osu.Framework.Graphics.OpenGL.Buffers
             Unbind();
         }
 
+        public void DrawRangeInstanced(int startIndex, int endIndex, int instanceCount)
+        {
+            Bind(true);
+
+            int amountVertices = endIndex - startIndex;
+            GL.DrawElementsInstanced(Type, ToElements(amountVertices), DrawElementsType.UnsignedShort, (IntPtr)(ToElementIndex(startIndex) * sizeof(ushort)), instanceCount);
+
+            Unbind();
+        }
+
         public void Update()
         {
             UpdateRange(0, Vertices.Length);

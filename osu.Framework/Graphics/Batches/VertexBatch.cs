@@ -99,7 +99,18 @@ namespace osu.Framework.Graphics.Batches
             }
         }
 
+        /// <summary>
+        /// Draw regular
+        /// </summary>
+        /// <returns></returns>
         public int Draw()
+        {
+            return DrawInstanced(0);
+        }
+        
+        /// <param name="instanceCount">if >0 will draw instanced geometry</param>
+        /// <returns></returns>
+        public int DrawInstanced(int instanceCount)
         {
             if (currentVertex == lastVertex)
                 return 0;
@@ -108,7 +119,10 @@ namespace osu.Framework.Graphics.Batches
             if (changeBeginIndex >= 0)
                 vertexBuffer.UpdateRange(changeBeginIndex, changeEndIndex);
 
-            vertexBuffer.DrawRange(lastVertex, currentVertex);
+            if(instanceCount > 0)
+                vertexBuffer.DrawRangeInstanced(lastVertex, currentVertex, instanceCount);
+            else
+                vertexBuffer.DrawRange(lastVertex, currentVertex);
 
             int count = currentVertex - lastVertex;
 

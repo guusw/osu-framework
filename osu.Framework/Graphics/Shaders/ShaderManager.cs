@@ -149,6 +149,7 @@ namespace osu.Framework.Graphics.Shaders
         Position,
         Colour,
         WorldViewProjection,
+        InstancedParticle,
     }
 
     public enum FragmentShaderDescriptor

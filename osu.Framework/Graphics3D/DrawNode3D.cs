@@ -20,6 +20,10 @@ namespace osu.Framework.Graphics3D
         public BlendingInfo Blending;
         public ColourInfo ColourInfo;
 
+        // Used for sorting
+        public int TransparencyGroup = 0;
+        public float Depth;
+
         public virtual void Draw(IVertexBatch vertexBatch)
         {
             Shader.SetGlobalProperty("g_WorldMatrix", WorldMatrix);

@@ -35,7 +35,7 @@ namespace osu.Framework.Graphics3D
         public Matrix4 ViewMatrix => viewMatrix.EnsureValid() ? viewMatrix.Value :
             viewMatrix.Refresh(() =>
             {
-                return WorldMatrix.Inverted(); // TODO: Test this, might need manual calculation
+                return WorldMatrix.Inverted();
             });
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace osu.Framework.Graphics3D
         /// </summary>
         public Matrix4 ProjectionMatrix
         {
-            get { return projectionMatrix; }
+            get { return projectionMatrix.EnsureValid() ? projectionMatrix.Value : projectionMatrix.Refresh(RefreshProjectionMatrix); }
         }
 
         /// <summary>
@@ -79,6 +79,7 @@ namespace osu.Framework.Graphics3D
                 {
                     viewportSize = value;
                     projectionMatrix.Invalidate();
+                    aspectRatio.Invalidate();
                 }
             }
         }

@@ -430,6 +430,15 @@ namespace osu.Framework.Graphics.OpenGL
             lastActiveBatch?.Draw();
         }
 
+        /// <summary>
+        /// Flushes the current batch to draw instanced geometry
+        /// </summary>
+        /// <param name="instanceCount">Number of instances to draw</param>
+        public static void DrawInstanced(int instanceCount)
+        {
+            lastActiveBatch?.DrawInstanced(instanceCount);
+        }
+
         public static bool IsMaskingActive => maskingStack.Count > 1;
 
         /// <summary>
@@ -551,7 +560,7 @@ namespace osu.Framework.Graphics.OpenGL
         {
             if (shader == currentShader)
                 FlushCurrentBatch();
-
+            
             switch (type)
             {
                 case ActiveUniformType.Bool:

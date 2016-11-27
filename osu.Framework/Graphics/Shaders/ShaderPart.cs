@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -86,8 +87,11 @@ namespace osu.Framework.Graphics.Shaders
 
         internal bool Compile()
         {
-            if (!HasCode)
+            if(!HasCode)
+            {
+                Log.AppendLine("No shader code");
                 return false;
+            }
 
             if (partID == -1)
                 partID = GL.CreateShader(Type);
@@ -111,6 +115,7 @@ namespace osu.Framework.Graphics.Shaders
             {
                 Log.AppendLine("\tLog:");
                 Log.AppendLine('\t' + compileLog);
+                Debug.WriteLine(Log);
             }
 #endif
 
