@@ -1,4 +1,4 @@
-ï»¿<?xml version="1.0" encoding="utf-8"?>
+?¿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -142,6 +142,8 @@
     <Compile Include="Graphics\OpenGL\Textures\BufferTextureGL.cs" />
     <Compile Include="Graphics\Primitives\Quad3D.cs" />
     <Compile Include="Graphics\Transformations\ITransformable.cs" />
+    <Compile Include="Graphics\Line\Path.cs" />
+    <Compile Include="Graphics\Line\PathDrawNode.cs" />
     <Compile Include="Graphics\ProxyDrawable.cs" />
     <Compile Include="Graphics\Sprites\Box.cs" />
     <Compile Include="Graphics\OpenGL\Textures\TextureGLAtlas.cs" />

@@ -1,4 +1,4 @@
-ï»¿// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
+?¿// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using System;
@@ -17,7 +17,6 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Statistics;
 using osu.Framework.MathUtils;
 using osu.Framework.Graphics.Primitives;
-using osu.Framework.Extensions.Color4Extensions;
 using osu.Framework.Graphics.Colour;
 using osu.Framework.Platform;
 
@@ -76,10 +75,11 @@ namespace osu.Framework.Graphics.OpenGL
         {
             Debug.Assert(shaderStack.Count == 0);
 
-            //todo: don't use scheduler
             resetScheduler.Update();
 
             lastBoundTexture = null;
+
+            lastDepthTest = null;
 
             lastBlendingInfo = new BlendingInfo();
             lastBlendingEnabledState = null;
@@ -195,6 +195,23 @@ namespace osu.Framework.Graphics.OpenGL
 
                 FrameStatistics.Increment(StatisticsCounterType.TextureBinds);
             }
+        }
+
+        private static bool? lastDepthTest;
+
+        public static void SetDepthTest(bool enabled)
+        {
+            if (lastDepthTest == enabled)
+                return;
+
+            lastDepthTest = enabled;
+
+            FlushCurrentBatch();
+
+            if (enabled)
+                GL.Enable(EnableCap.DepthTest);
+            else
+                GL.Disable(EnableCap.DepthTest);
         }
 
         private static BlendingInfo lastBlendingInfo;

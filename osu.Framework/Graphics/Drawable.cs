@@ -531,7 +531,7 @@ namespace osu.Framework.Graphics
                 return di;
             });
 
-        protected RectangleF DrawRectangle
+        public RectangleF DrawRectangle
         {
             get
             {
@@ -540,7 +540,7 @@ namespace osu.Framework.Graphics
             }
         }
 
-        protected RectangleF LayoutRectangle
+        public RectangleF LayoutRectangle
         {
             get
             {
@@ -1153,7 +1153,7 @@ namespace osu.Framework.Graphics
     {
         public int Compare(Drawable x, Drawable y)
         {
-            int i = x.Depth.CompareTo(y.Depth);
+            int i = y.Depth.CompareTo(x.Depth);
             if (i != 0) return i;
             return x.CreationID.CompareTo(y.CreationID);
         }

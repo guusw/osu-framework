@@ -57,6 +57,19 @@ namespace osu.Framework.Graphics.Sprites
             }
         }
 
+
+        private Color4 shadowColour = new Color4(0f, 0f, 0f, 0.5f);
+        public Color4 ShadowColour
+        {
+            get { return shadowColour; }
+            set
+            {
+                shadowColour = value;
+                if (shadow)
+                    internalSize.Invalidate();
+            }
+        }
+
         private Cached<Vector2> internalSize = new Cached<Vector2>();
 
         private float spaceWidth;
@@ -196,8 +209,8 @@ namespace osu.Framework.Graphics.Sprites
                         {
                             Sprite shadowSprite = getSprite(c);
                             shadowSprite.Position = new Vector2(-0.02f, 0.02f);
-                            shadowSprite.Colour = new Color4(0f, 0f, 0f, 0.5f);
-                            shadowSprite.Depth = float.MinValue;
+                            shadowSprite.Colour = shadowColour;
+                            shadowSprite.Depth = float.MaxValue;
                             ctn.Add(shadowSprite);
                         }
 
