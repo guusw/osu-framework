@@ -4,7 +4,6 @@
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Shaders;
 using osu.Framework.Graphics.Textures;
-using OpenTK.Graphics.ES30;
 using osu.Framework.Graphics.OpenGL;
 using OpenTK;
 using System;
@@ -12,6 +11,7 @@ using osu.Framework.Graphics.OpenGL.Buffers;
 using System.Collections.Generic;
 using osu.Framework.Graphics.Batches;
 using OpenTK.Graphics;
+using OpenTK.Graphics.OpenGL;
 
 namespace osu.Framework.Graphics.Sprites
 {
