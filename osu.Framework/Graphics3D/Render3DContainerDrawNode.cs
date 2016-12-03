@@ -2,8 +2,10 @@
 // Licensed under the MIT License(MIT)
 // See "LICENSE.txt" for more information
 
+using System;
 using osu.Framework.Graphics.Batches;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Graphics.OpenGL;
 using OpenTK.Graphics;
 
 namespace osu.Framework.Graphics3D
@@ -13,9 +15,9 @@ namespace osu.Framework.Graphics3D
         public SceneRootDrawNode Scene;
         public Color4 ClearColor;
 
-        protected override void DrawContents(IVertexBatch vertexBatch)
+        protected override void DrawContents(Action<TexturedVertex2D> vertexAction)
         {
-            Scene?.Draw(vertexBatch);
+            Scene?.Draw();
         }
     }
 }

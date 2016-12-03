@@ -68,7 +68,7 @@ namespace osu.Framework.Graphics3D
         private void Load(ShaderManager shaders)
         {
             if(textureShader == null)
-                textureShader = shaders?.Load(new ShaderDescriptor(VertexShaderDescriptor.WorldViewProjection, FragmentShaderDescriptor.Texture));
+                textureShader = shaders?.Load(VertexShaderDescriptor.WorldViewProjection, FragmentShaderDescriptor.Texture);
         }
     }
 }

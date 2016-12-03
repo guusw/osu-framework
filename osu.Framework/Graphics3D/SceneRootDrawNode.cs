@@ -23,9 +23,9 @@ namespace osu.Framework.Graphics3D
 
         private Vector3 cameraForward;
 
-        public override void Draw(IVertexBatch vertexBatch)
+        public override void Draw()
         {
-            base.Draw(vertexBatch);
+            base.Draw();
 
             // Set camera uniforms
             Shader.SetGlobalProperty(@"g_ProjMatrix", ProjectionMatrix);
@@ -37,7 +37,7 @@ namespace osu.Framework.Graphics3D
 
             foreach(var child in Children)
             {
-                child.Draw(vertexBatch);
+                child.Draw();
             }
 
             // Flush batch before disabling state

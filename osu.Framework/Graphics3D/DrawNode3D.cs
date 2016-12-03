@@ -24,7 +24,7 @@ namespace osu.Framework.Graphics3D
         public int TransparencyGroup = 0;
         public float Depth;
 
-        public virtual void Draw(IVertexBatch vertexBatch)
+        public virtual void Draw()
         {
             Shader.SetGlobalProperty("g_WorldMatrix", WorldMatrix);
             GLWrapper.SetBlend(Blending);

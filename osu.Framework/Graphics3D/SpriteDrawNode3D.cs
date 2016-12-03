@@ -21,45 +21,12 @@ namespace osu.Framework.Graphics3D
         public Shader Shader;
         public RectangleF Rectangle;
 
-        public override void Draw(IVertexBatch vertexBatch)
+        public override void Draw()
         {
-            base.Draw(vertexBatch);
+            base.Draw();
             Shader.Bind();
 
             Texture.Draw(new Quad(Rectangle.X, Rectangle.Y, Rectangle.Width, Rectangle.Height), ColourInfo);
-
-            //GLWrapper.BindTexture(Texture.TextureGL);
-            //// TODO: Calculate sub-texture coordinates for not single textures
-            //
-            //if(spriteBatch == null)
-            //{
-            //    spriteBatch = new QuadBatch<TexturedVertex3D>(512, 128);
-            //}
-            //
-            //spriteBatch.Add(new TexturedVertex3D
-            //{
-            //    Position = new Vector3(Rectangle.Left, Rectangle.Top, 0.0f),
-            //    Colour = Colour.TopLeft.Linear,
-            //    TexturePosition = new Vector2(0.0f, 1.0f)
-            //});
-            //spriteBatch.Add(new TexturedVertex3D
-            //{
-            //    Position = new Vector3(Rectangle.Right, Rectangle.Top, 0.0f),
-            //    Colour = Colour.TopRight.Linear,
-            //    TexturePosition = new Vector2(1.0f, 1.0f)
-            //});
-            //spriteBatch.Add(new TexturedVertex3D
-            //{
-            //    Position = new Vector3(Rectangle.Right, Rectangle.Bottom, 0.0f),
-            //    Colour = Colour.BottomRight.Linear,
-            //    TexturePosition = new Vector2(1.0f, 0.0f)
-            //});
-            //spriteBatch.Add(new TexturedVertex3D
-            //{
-            //    Position = new Vector3(Rectangle.Left, Rectangle.Bottom, 0.0f),
-            //    Colour = Colour.BottomLeft.Linear,
-            //    TexturePosition = new Vector2(0.0f, 0.0f)
-            //});
 
             Shader.Unbind();
         }

@@ -359,8 +359,8 @@ namespace osu.Framework.Graphics3D.Particles
         [BackgroundDependencyLoader]
         void Load(ShaderManager shaderManager)
         {
-            shader = shaderManager.Load(new ShaderDescriptor(VertexShaderDescriptor.InstancedParticle,
-                FragmentShaderDescriptor.Texture));
+            shader = shaderManager.Load(VertexShaderDescriptor.InstancedParticle,
+                FragmentShaderDescriptor.Texture);
         }
     }
 }

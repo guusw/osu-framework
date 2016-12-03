@@ -66,8 +66,10 @@ namespace osu.Framework.Audio.Track
 
             Length = (Bass.ChannelBytes2Seconds(activeStream, Bass.ChannelGetLength(activeStream)) * 1000);
             Bass.ChannelGetAttribute(activeStream, ChannelAttribute.Frequency, out initialFrequency);
-        }
+            SampleRate = initialFrequency;
 
+            Bass.ChannelSetDSP(activeStream, dspProcessor);
+        }
         public override void Reset()
         {
             Stop();
@@ -164,6 +166,16 @@ namespace osu.Framework.Audio.Track
         public override int? Bitrate => (int)Bass.ChannelGetAttribute(activeStream, ChannelAttribute.Bitrate);
 
         public override bool HasCompleted => base.HasCompleted || (!IsRunning && CurrentTime >= Length);
+
+        private unsafe void dspProcessor(int handle, int channel, IntPtr buffer, int length, IntPtr user)
+        {
+            float* data = (float*)buffer;
+            int numSamples = length / 4 / 2;
+            foreach(var dsp in Dsps)
+            {
+                dsp.Process(data, numSamples);
+            }
+        }
 
         private class DataStreamFileProcedures
         {

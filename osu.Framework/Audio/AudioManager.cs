@@ -189,6 +189,7 @@ namespace osu.Framework.Audio
 
             Bass.PlaybackBufferLength = 50;
             Bass.UpdatePeriod = 5;
+            Bass.FloatingPointDSP = true;
 
             return true;
         }

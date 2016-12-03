@@ -1,13 +1,18 @@
 ﻿// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
+using System;
 using osu.Framework.Configuration;
 using osu.Framework.Timing;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace osu.Framework.Audio.Track
 {
     public abstract class AudioTrack : AdjustableAudioComponent, IAdjustableClock, IHasCompletedState
     {
+        protected List<Dsp> Dsps = new List<Dsp>();
+
         /// <summary>
         /// Is this track capable of producing audio?
         /// </summary>
@@ -46,6 +51,11 @@ namespace osu.Framework.Audio.Track
         /// </summary>
         public double Length { get; protected set; }
 
+        /// <summary>
+        /// Sample rate of the stream
+        /// </summary>
+        public double SampleRate { get; protected set; }
+
         public virtual int? Bitrate => null;
 
         /// <summary>
@@ -59,6 +69,36 @@ namespace osu.Framework.Audio.Track
 
         public abstract void Stop();
 
+        public void AddDsp(Dsp dsp)
+        {
+            if(Dsps.Contains(dsp)) throw new InvalidOperationException("DSP added twice");
+            if(dsp.Track != null)
+                throw new InvalidOperationException("DSP added to more than 1 track at the same time");
+
+            Dsps.Add(dsp);
+            dsp.Track = this;
+        }
+
+        public void RemoveDsp(Dsp dsp)
+        {
+            if(!Dsps.Contains(dsp)) throw new InvalidOperationException("DSP not contained on this track");
+
+            OnDspRemoved(dsp);
+            Dsps.Remove(dsp);
+            dsp.Track = null;
+        }
+
+        public void ClearDsps()
+        {
+            foreach(var dsp in Dsps)
+            {
+                OnDspRemoved(dsp);
+                dsp.Track = null;
+            }
+
+            Dsps.Clear();
+        }
+
         public abstract bool IsRunning { get; }
 
         /// <summary>
@@ -71,7 +111,7 @@ namespace osu.Framework.Audio.Track
         public override void Update()
         {
             base.Update();
-            if (Looping && !IsRunning && Length == CurrentTime)
+            if(Looping && !IsRunning && Length == CurrentTime)
             {
                 Reset();
                 Start();
@@ -79,5 +119,13 @@ namespace osu.Framework.Audio.Track
         }
 
         public virtual bool HasCompleted => IsDisposed;
+
+        protected virtual void OnDspAdded(Dsp newDsp)
+        {
+        }
+
+        protected virtual void OnDspRemoved(Dsp newDsp)
+        {
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace osu.Framework.Graphics3D.Particles
 
         private static QuadBatch<TexturedVertex2D> particleInstancedBatch;
 
-        public override void Draw(IVertexBatch vertexBatch)
+        public override void Draw()
         {
             if(Texture == null)
                 return;
@@ -44,7 +44,8 @@ namespace osu.Framework.Graphics3D.Particles
                 particleInstancedBatch = new QuadBatch<TexturedVertex2D>(TexturedVertex2D.Stride * 4, 1);
             
             var colourInfo = new ColourInfo {Colour = Color4.White};
-            Texture.Draw(new Quad(-0.5f, -0.5f, 1.0f, 1.0f), colourInfo, spriteBatch: particleInstancedBatch);
+            
+            Texture.Draw(new Quad(-0.5f, -0.5f, 1.0f, 1.0f), colourInfo, vertexAction: v => particleInstancedBatch.Add(v));
 
             // Set GPU buffer data
             Buffer.SetData(BufferData);

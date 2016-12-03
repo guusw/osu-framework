@@ -176,10 +176,9 @@ namespace osu.Framework.Graphics.Containers
         /// <summary>
         /// Made overrideable to allow for custom drawining inside a buffered type container
         /// </summary>
-        /// <param name="vertexBatch"></param>
         protected virtual void DrawContents(Action<TexturedVertex2D> vertexAction)
         {
-            base.Draw(vertexBatch);
+            base.Draw(vertexAction);
         }
 
         public override void Draw(Action<TexturedVertex2D> vertexAction)

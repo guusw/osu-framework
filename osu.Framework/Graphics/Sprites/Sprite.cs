@@ -14,8 +14,8 @@ namespace osu.Framework.Graphics.Sprites
 {
     public class Sprite : Drawable
     {
-        private Shader textureShader;
-        private Shader roundedTextureShader;
+        protected Shader TextureShader;
+        protected Shader RoundedTextureShader;
 
         public bool WrapTexture = false;
 
@@ -65,8 +65,8 @@ namespace osu.Framework.Graphics.Sprites
         [BackgroundDependencyLoader]
         private void load(ShaderManager shaders)
         {
-            textureShader = shaders?.Load(VertexShaderDescriptor.Texture2D, FragmentShaderDescriptor.Texture);
-            roundedTextureShader = shaders?.Load(VertexShaderDescriptor.Texture2D, FragmentShaderDescriptor.TextureRounded);
+            TextureShader = shaders?.Load(VertexShaderDescriptor.Texture2D, FragmentShaderDescriptor.Texture);
+            RoundedTextureShader = shaders?.Load(VertexShaderDescriptor.Texture2D, FragmentShaderDescriptor.TextureRounded);
         }
 
         protected override bool CheckForcedPixelSnapping(Quad screenSpaceQuad)
