@@ -182,16 +182,6 @@ namespace osu.Framework.Audio.Track
             }
         }
 
-        protected override void OnDspAdded(Dsp newDsp)
-        {
-            base.OnDspAdded(newDsp);
-        }
-
-        protected override void OnDspRemoved(Dsp newDsp)
-        {
-            base.OnDspRemoved(newDsp);
-        }
-
         private class DataStreamFileProcedures
         {
             private byte[] readBuffer = new byte[32768];
