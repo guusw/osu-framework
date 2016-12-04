@@ -6,12 +6,15 @@ using osu.Framework.Configuration;
 using osu.Framework.Timing;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
 
 namespace osu.Framework.Audio.Track
 {
     public abstract class AudioTrack : AdjustableAudioComponent, IAdjustableClock, IHasCompletedState
     {
         protected List<Dsp> Dsps = new List<Dsp>();
+
+        protected object DspProcessorLock = new object();
 
         /// <summary>
         /// Is this track capable of producing audio?
@@ -83,9 +86,12 @@ namespace osu.Framework.Audio.Track
         {
             if(!Dsps.Contains(dsp)) throw new InvalidOperationException("DSP not contained on this track");
 
-            OnDspRemoved(dsp);
-            Dsps.Remove(dsp);
-            dsp.Track = null;
+            lock(DspProcessorLock)
+            {
+                OnDspRemoved(dsp);
+                Dsps.Remove(dsp);
+                dsp.Track = null;
+            }
         }
 
         public void ClearDsps()

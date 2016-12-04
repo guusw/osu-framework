@@ -269,12 +269,16 @@ namespace osu.Framework.Platform
 
         public void Exit()
         {
-            ExitRequested = true;
+            InputScheduler.Add(delegate
+            {
+                ExitRequested = true;
 
-            threads.ForEach(t => t.Exit());
+                threads.ForEach(t => t.Exit());
 
-            while (threadsRunning)
-                Thread.Sleep(1);
+                while (threadsRunning)
+                    Thread.Sleep(1);
+                Window?.Close();
+            }, false);
         }
 
         public virtual void Run()

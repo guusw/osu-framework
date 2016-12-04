@@ -166,15 +166,30 @@ namespace osu.Framework.Audio.Track
         public override int? Bitrate => (int)Bass.ChannelGetAttribute(activeStream, ChannelAttribute.Bitrate);
 
         public override bool HasCompleted => base.HasCompleted || (!IsRunning && CurrentTime >= Length);
-
+        
         private unsafe void dspProcessor(int handle, int channel, IntPtr buffer, int length, IntPtr user)
         {
             float* data = (float*)buffer;
             int numSamples = length / 4 / 2;
-            foreach(var dsp in Dsps)
+
+            lock(DspProcessorLock)
             {
-                dsp.Process(data, numSamples);
+                var copy = Dsps.ToArray();
+                foreach(var dsp in copy)
+                {
+                    dsp.Process(data, numSamples);
+                }
             }
+        }
+
+        protected override void OnDspAdded(Dsp newDsp)
+        {
+            base.OnDspAdded(newDsp);
+        }
+
+        protected override void OnDspRemoved(Dsp newDsp)
+        {
+            base.OnDspRemoved(newDsp);
         }
 
         private class DataStreamFileProcedures
