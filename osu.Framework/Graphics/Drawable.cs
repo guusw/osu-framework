@@ -190,7 +190,7 @@ namespace osu.Framework.Graphics
                 Invalidate(Invalidation.Geometry);
             }
         }
-        
+
         private ColourInfo colourInfo = ColourInfo.SingleColour(Color4.White);
 
         public ColourInfo ColourInfo
@@ -626,7 +626,10 @@ namespace osu.Framework.Graphics
             return false;
         }
 
-        protected virtual RectangleF BoundingBox => ToParentSpace(LayoutRectangle).AABBf;
+        /// <summary>
+        /// Computes the bounding box of this drawable in its parent's space.
+        /// </summary>
+        public virtual RectangleF BoundingBox => ToParentSpace(LayoutRectangle).AABBf;
 
         private Cached<Vector2> boundingSizeBacking = new Cached<Vector2>();
 
@@ -728,6 +731,9 @@ namespace osu.Framework.Graphics
         /// <returns>False if the drawable should not be updated.</returns>
         protected internal virtual bool UpdateSubTree()
         {
+            if (Parent != null) //we don't want to update our clock if we are at the top of the stack. it's handled elsewhere for us.
+                customClock?.ProcessFrame();
+
             if (LoadState < LoadState.Alive)
                 if (!loadComplete()) return false;
 
@@ -1156,6 +1162,16 @@ namespace osu.Framework.Graphics
             int i = y.Depth.CompareTo(x.Depth);
             if (i != 0) return i;
             return x.CreationID.CompareTo(y.CreationID);
+        }
+    }
+
+    public class ReverseCreationOrderDepthComparer : IComparer<Drawable>
+    {
+        public int Compare(Drawable x, Drawable y)
+        {
+            int i = y.Depth.CompareTo(x.Depth);
+            if (i != 0) return i;
+            return y.CreationID.CompareTo(x.CreationID);
         }
     }
 

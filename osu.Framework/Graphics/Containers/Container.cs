@@ -1,4 +1,4 @@
-// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
+﻿// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using osu.Framework.Lists;
@@ -177,10 +177,8 @@ namespace osu.Framework.Graphics.Containers
 
             set
             {
-                if (Content != this)
-                    Content.Children = value;
-                else
-                    InternalChildren = value;
+                Clear();
+                Add(value);
             }
         }
 
@@ -399,7 +397,7 @@ namespace osu.Framework.Graphics.Containers
             foreach (T child in children.AliveItems)
                 if (child.IsLoaded) child.UpdateSubTree();
 
-            UpdateLayout();
+            UpdateAfterChildren();
 
             if (AutoSizeAxes != Axes.None)
                 updateAutoSize();
@@ -457,7 +455,7 @@ namespace osu.Framework.Graphics.Containers
         /// <summary>
         /// Perform any layout changes just before autosize is calculated.		
         /// </summary>		
-        protected virtual void UpdateLayout()
+        protected virtual void UpdateAfterChildren()
         {
         }
 
@@ -610,7 +608,7 @@ namespace osu.Framework.Graphics.Containers
                 return DrawRectangle.Shrink(cornerRadius).DistanceSquared(ToLocalSpace(screenSpacePos)) <= cornerRadius * cornerRadius;
         }
 
-        protected override RectangleF BoundingBox
+        public override RectangleF BoundingBox
         {
             get
             {
@@ -629,7 +627,7 @@ namespace osu.Framework.Graphics.Containers
                 return ToParentSpace(drawRect).AABBf.Inflate(inflation);
             }
         }
-        
+
         protected override void Dispose(bool isDisposing)
         {
             //this could cause issues if a child is referenced in more than one containers (or referenced for future use elsewhere).

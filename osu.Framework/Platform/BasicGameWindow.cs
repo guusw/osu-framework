@@ -124,5 +124,9 @@ namespace osu.Framework.Platform
         {
             return ExitRequested?.Invoke() ?? false;
         }
+
+        public virtual void CentreToScreen()
+        {
+        }
     }
 }

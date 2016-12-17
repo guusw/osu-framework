@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2007-2016 ppy Pty Ltd <contact@ppy.sh>.
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
+using System;
+
 namespace osu.Framework.Graphics.Containers
 {
     /// <summary>
@@ -14,7 +16,7 @@ namespace osu.Framework.Graphics.Containers
             if (state == Visibility.Hidden)
             {
                 PopOut();
-                Flush();
+                Flush(true);
             }
 
             base.LoadComplete();
@@ -37,8 +39,12 @@ namespace osu.Framework.Graphics.Containers
                         PopIn();
                         break;
                 }
+
+                StateChanged?.Invoke(this, state);
             }
         }
+
+        public event Action<OverlayContainer, Visibility> StateChanged;
 
         protected abstract void PopIn();
 

@@ -4,9 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using osu.Framework.Graphics.Batches;
 using osu.Framework.Graphics.Primitives;
-using OpenTK.Graphics;
 using RectangleF = osu.Framework.Graphics.Primitives.RectangleF;
 using OpenTK;
 using osu.Framework.Graphics.Colour;
@@ -25,6 +23,11 @@ namespace osu.Framework.Graphics.OpenGL.Textures
 
         public TextureGLSub(Rectangle bounds, TextureGLSingle parent)
         {
+            // If GLWrapper is not initialized at this point, it means we do not have OpenGL available
+            // and thus will never draw anything. In this case it is fine if the parent texture is null.
+            Debug.Assert(!GLWrapper.IsInitialized || parent != null,
+                "May not construct a subtexture without a parent texture to refer to.");
+
             this.bounds = bounds;
             this.parent = parent;
         }
@@ -62,12 +65,14 @@ namespace osu.Framework.Graphics.OpenGL.Textures
             return parent.GetTextureRect(BoundsInParent(textureRect));
         }
 
-        /// <summary>
-        /// Blits sprite to OpenGL display with specified parameters.
-        /// </summary>
-        public override void Draw(Quad vertexQuad, RectangleF? textureRect, ColourInfo drawColour, Action<TexturedVertex2D> vertexAction = null, Vector2? inflationPercentage = null)
+        public override void DrawTriangle(Triangle vertexTriangle, RectangleF? textureRect, ColourInfo drawColour, Action<TexturedVertex2D> vertexAction = null, Vector2? inflationPercentage = null)
         {
-            parent.Draw(vertexQuad, BoundsInParent(textureRect), drawColour, vertexAction, inflationPercentage);
+            parent.DrawTriangle(vertexTriangle, BoundsInParent(textureRect), drawColour, vertexAction, inflationPercentage);
+        }
+
+        public override void DrawQuad(Quad vertexQuad, RectangleF? textureRect, ColourInfo drawColour, Action<TexturedVertex2D> vertexAction = null, Vector2? inflationPercentage = null)
+        {
+            parent.DrawQuad(vertexQuad, BoundsInParent(textureRect), drawColour, vertexAction, inflationPercentage);
         }
 
         internal override bool Upload()

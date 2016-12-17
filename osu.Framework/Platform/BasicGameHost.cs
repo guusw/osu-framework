@@ -220,8 +220,7 @@ namespace osu.Framework.Platform
         protected virtual void UpdateInitialize()
         {
             //this was added due to the dependency on GLWrapper.MaxTextureSize begin initialised.
-            while (!GLWrapper.IsInitialized)
-                Thread.Sleep(1);
+            drawThread.WaitUntilInitialized();
         }
 
         protected void UpdateFrame()
@@ -265,8 +264,6 @@ namespace osu.Framework.Platform
 
         protected volatile bool ExitRequested;
 
-        private bool threadsRunning => updateThread.Running || drawThread.Running;
-
         public void Exit()
         {
             InputScheduler.Add(delegate
@@ -274,9 +271,7 @@ namespace osu.Framework.Platform
                 ExitRequested = true;
 
                 threads.ForEach(t => t.Exit());
-
-                while (threadsRunning)
-                    Thread.Sleep(1);
+                threads.Where(t => t.Running).ForEach(t => t.Thread.Join());
                 Window?.Close();
             }, false);
         }
@@ -345,6 +340,8 @@ namespace osu.Framework.Platform
             if (Window.WindowState == WindowState.Minimized) return;
 
             var size = Window.ClientSize;
+            //When minimizing, there will be an "size zero, but WindowState not Minimized" state.
+            if (size.IsEmpty) return;
             UpdateScheduler.Add(delegate
             {
                 //set base.Size here to avoid the override below, which would cause a recursive loop.
@@ -356,15 +353,21 @@ namespace osu.Framework.Platform
         {
             set
             {
-                //this logic is shit, but necessary to make stuff not assert.
-                //it's high priority to figure a better way to handle this, but i'm leaving it this way so we have a working codebase for now.
-                UpdateScheduler.Add(delegate
+                if (Window != null)
                 {
-                    //update the underlying window size based on our new set size.
-                    //important we do this before the base.Size set otherwise Invalidate logic will overwrite out new setting.
-                    InputScheduler.Add(delegate { if (Window != null) Window.ClientSize = new Size((int)value.X, (int)value.Y); });
-                    base.Size = value;
-                });
+                    if (!Window.Visible)
+                    {
+                        //set aggressively as we haven't become visible yet
+                        Window.ClientSize = new Size((int)value.X, (int)value.Y);
+                        Window.CentreToScreen();
+                    }
+                    else
+                    {
+                        InputScheduler.Add(delegate { if (Window != null) Window.ClientSize = new Size((int)value.X, (int)value.Y); });
+                    }
+                }
+
+                base.Size = value;
             }
         }
 
@@ -372,6 +375,10 @@ namespace osu.Framework.Platform
 
         public override void Add(Drawable drawable)
         {
+            // TODO: We may in the future want to hold off on performing _any_ action on game host
+            // before its threads have been launched. This requires changing the order from
+            // host.Run -> host.Add instead of host.Add -> host.Run.
+
             Debug.Assert(!Children.Any(), @"Don't load more than one Game in a Host");
 
             BaseGame game = drawable as BaseGame;
@@ -387,11 +394,21 @@ namespace osu.Framework.Platform
             LoadGame(game);
         }
 
+        protected virtual void WaitUntilReadyToLoad()
+        {
+            updateThread.WaitUntilInitialized();
+            drawThread.WaitUntilInitialized();
+        }
+
         protected virtual void LoadGame(BaseGame game)
         {
-            // We are passing "null" as a parameter to Load to make sure BasicGameHost can never
-            // depend on a Game object.
-            Task.Run(() => game.PerformLoad(null)).ContinueWith(obj => Schedule(() => base.Add(game)));
+            Task.Run(delegate
+            {
+                // Make sure we are not loading anything game-related before our threads have been initialized.
+                WaitUntilReadyToLoad();
+
+                game.PerformLoad(game);
+            }).ContinueWith(obj => Schedule(() => base.Add(game)));
         }
 
         public abstract IEnumerable<InputHandler> GetInputHandlers();

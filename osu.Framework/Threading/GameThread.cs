@@ -69,6 +69,8 @@ namespace osu.Framework.Threading
 
         private volatile bool exitRequested;
 
+        private readonly ManualResetEvent initializedEvent = new ManualResetEvent(false);
+
         public Action OnThreadStart;
 
         public GameThread(Action onNewFrame, string threadName)
@@ -85,11 +87,18 @@ namespace osu.Framework.Threading
             Scheduler = new Scheduler(null);
         }
 
+        public void WaitUntilInitialized()
+        {
+            initializedEvent.WaitOne();
+        }
+
         private void runWork()
         {
             Scheduler.SetCurrentThread();
 
             OnThreadStart?.Invoke();
+
+            initializedEvent.Set();
 
             while (!exitRequested)
                 ProcessFrame();

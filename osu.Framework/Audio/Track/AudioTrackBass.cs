@@ -117,8 +117,8 @@ namespace osu.Framework.Audio.Track
 
         public override void Start()
         {
-            isPlayed = true;
             Update(); //ensure state is valid.
+            isPlayed = true;
             Bass.ChannelPlay(activeStream);
         }
 

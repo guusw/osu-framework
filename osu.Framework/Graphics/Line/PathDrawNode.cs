@@ -7,16 +7,17 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics.OpenGL;
 using OpenTK;
 using System;
-using osu.Framework.Graphics.OpenGL.Buffers;
 using System.Collections.Generic;
 using osu.Framework.Graphics.Batches;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 
 namespace osu.Framework.Graphics.Sprites
 {
     public class PathDrawNodeSharedData
     {
+        // We multiply the size param by 3 such that the amount of vertices is a multiple of the amount of vertices
+        // per primitive (triangles in this case). Otherwise overflowing the batch will result in wrong
+        // grouping of vertices into primitives.
         public LinearBatch<TexturedVertex3D> HalfCircleBatch = new LinearBatch<TexturedVertex3D>(PathDrawNode.MAXRES * 100 * 3, 10, PrimitiveType.Triangles);
         public QuadBatch<TexturedVertex3D> QuadBatch = new QuadBatch<TexturedVertex3D>(200, 10);
     }
@@ -173,6 +174,8 @@ namespace osu.Framework.Graphics.Sprites
             if (Texture == null || Texture.IsDisposed || Segments.Count == 0)
                 return;
 
+            GLWrapper.SetDepthTest(true);
+
             Shader shader = NeedsRoundedShader ? RoundedTextureShader : TextureShader;
 
             shader.Bind();
@@ -183,6 +186,8 @@ namespace osu.Framework.Graphics.Sprites
             updateVertexBuffer();
 
             shader.Unbind();
+
+            GLWrapper.SetDepthTest(false);
         }
     }
 }

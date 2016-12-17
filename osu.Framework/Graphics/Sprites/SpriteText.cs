@@ -58,7 +58,7 @@ namespace osu.Framework.Graphics.Sprites
         }
 
 
-        private Color4 shadowColour = new Color4(0f, 0f, 0f, 0.5f);
+        private Color4 shadowColour = new Color4(0f, 0f, 0f, 0.2f);
         public Color4 ShadowColour
         {
             get { return shadowColour; }
@@ -208,7 +208,7 @@ namespace osu.Framework.Graphics.Sprites
                         if (shadow)
                         {
                             Sprite shadowSprite = getSprite(c);
-                            shadowSprite.Position = new Vector2(-0.02f, 0.02f);
+                            shadowSprite.Position = new Vector2(0, 0.06f);
                             shadowSprite.Colour = shadowColour;
                             shadowSprite.Depth = float.MaxValue;
                             ctn.Add(shadowSprite);
@@ -236,23 +236,6 @@ namespace osu.Framework.Graphics.Sprites
         public override string ToString()
         {
             return $@"""{Text}"" " + base.ToString();
-        }
-
-        public void TransformSpacingTo(float newAlpha, double duration = 0, EasingTypes easing = EasingTypes.None)
-        {
-            UpdateTransformsOfType(typeof(TransformSpacing));
-            TransformFloatTo(EdgeEffect.Colour.Linear.A, newAlpha, duration, easing, new TransformSpacing());
-        }
-
-        public class TransformSpacing : TransformFloat
-        {
-            public override void Apply(ITransformable t1)
-            {
-                base.Apply(t1);
-                SpriteText t = t1 as SpriteText;
-
-                t.SpacingOverlap = CurrentValue;
-            }
         }
     }
 }

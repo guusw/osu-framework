@@ -2,6 +2,7 @@
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using osu.Framework.Caching;
 using osu.Framework.Graphics.Transformations;
@@ -70,6 +71,23 @@ namespace osu.Framework.Graphics.Containers
             }
         }
 
+        public void TransformSpacingTo(Vector2 newSpacing, double duration = 0, EasingTypes easing = EasingTypes.None)
+        {
+            UpdateTransformsOfType(typeof(TransformSpacing));
+            TransformVectorTo(spacing, newSpacing, duration, easing, new TransformSpacing());
+        }
+
+        public class TransformSpacing : TransformVector
+        {
+            public override void Apply(Drawable d)
+            {
+                base.Apply(d);
+                FlowContainer t = d as FlowContainer;
+
+                t.Spacing = CurrentValue;
+            }
+        }
+
         public override bool Invalidate(Invalidation invalidation = Invalidation.All, Drawable source = null, bool shallPropagate = true)
         {
             if ((invalidation & Invalidation.SizeInParentSpace) > 0)
@@ -93,9 +111,11 @@ namespace osu.Framework.Graphics.Containers
             base.Add(drawable);
         }
 
-        protected override void UpdateLayout()
+        protected virtual IEnumerable<T> SortedChildren => AliveChildren;
+
+        protected override void UpdateAfterChildren()
         {
-            base.UpdateLayout();
+            base.UpdateAfterChildren();
 
             if (!layout.EnsureValid())
             {
@@ -119,7 +139,7 @@ namespace osu.Framework.Graphics.Containers
                     }
 
                     float rowMaxHeight = 0;
-                    foreach (Drawable d in AliveChildren)
+                    foreach (Drawable d in SortedChildren)
                     {
                         Vector2 size = Vector2.Zero;
 
