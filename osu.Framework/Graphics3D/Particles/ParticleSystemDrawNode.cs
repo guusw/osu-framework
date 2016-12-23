@@ -45,7 +45,7 @@ namespace osu.Framework.Graphics3D.Particles
             
             var colourInfo = new ColourInfo {Colour = Color4.White};
             
-            Texture.Draw(new Quad(-0.5f, -0.5f, 1.0f, 1.0f), colourInfo, vertexAction: v => particleInstancedBatch.Add(v));
+            Texture.DrawQuad(new Quad(-0.5f, -0.5f, 1.0f, 1.0f), colourInfo, vertexAction: v => particleInstancedBatch.Add(v));
 
             // Set GPU buffer data
             Buffer.SetData(BufferData);

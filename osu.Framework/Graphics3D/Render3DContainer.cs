@@ -59,17 +59,15 @@ namespace osu.Framework.Graphics3D
 
         protected internal override bool UpdateSubTree()
         {
-            Content.UpdateSubTree();
-            return base.UpdateSubTree();
-        }
-
-        protected override void UpdateLayout()
-        {
-            base.UpdateLayout();
+            if(!base.UpdateSubTree())
+                return false;
 
             // Update viewport size on camera
             if(Camera != null)
                 Camera.ViewportSize = DrawSize;
+
+            Content.UpdateSubTree();
+            return base.UpdateSubTree();
         }
 
         protected override void ApplyDrawNode(osu.Framework.Graphics.DrawNode node)

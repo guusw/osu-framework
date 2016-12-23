@@ -77,14 +77,14 @@ namespace osu.Framework.Graphics.Containers
             TransformVectorTo(spacing, newSpacing, duration, easing, new TransformSpacing());
         }
 
-        public class TransformSpacing : TransformVector
+        public class TransformSpacing : TransformVector2D
         {
-            public override void Apply(Drawable d)
+            public override void Apply(ITransformable d)
             {
                 base.Apply(d);
                 FlowContainer t = d as FlowContainer;
-
-                t.Spacing = CurrentValue;
+                if(t != null)
+                    t.Spacing = CurrentValue;
             }
         }
 

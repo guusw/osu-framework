@@ -26,7 +26,7 @@ namespace osu.Framework.Graphics3D
             base.Draw();
             Shader.Bind();
 
-            Texture.Draw(new Quad(Rectangle.X, Rectangle.Y, Rectangle.Width, Rectangle.Height), ColourInfo);
+            Texture.DrawQuad(new Quad(Rectangle.X, Rectangle.Y, Rectangle.Width, Rectangle.Height), ColourInfo);
 
             Shader.Unbind();
         }
