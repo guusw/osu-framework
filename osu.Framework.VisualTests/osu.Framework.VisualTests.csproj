@@ -38,9 +38,6 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK">
-      <HintPath>..\deps\OpenTK.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
@@ -75,6 +72,10 @@
     <Compile Include="Tests\TestCaseCheckBoxes.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\opentk\src\OpenTK\OpenTK.csproj">
+      <Project>{a37a7e14-0000-0000-0000-000000000000}</Project>
+      <Name>OpenTK</Name>
+    </ProjectReference>
     <ProjectReference Include="..\osu.Framework.Desktop\osu.Framework.Desktop.csproj">
       <Project>{65dc628f-a640-4111-ab35-3a5652bc1e17}</Project>
       <Name>osu.Framework.Desktop</Name>
