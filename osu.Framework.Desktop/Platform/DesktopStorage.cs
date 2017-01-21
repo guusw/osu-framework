@@ -2,6 +2,7 @@
 // Licensed under the MIT Licence - https://raw.githubusercontent.com/ppy/osu-framework/master/LICENCE
 
 using System;
+using System.Collections.Generic;
 using SQLite.Net;
 using System.IO;
 using osu.Framework.Platform;
@@ -47,7 +48,10 @@ namespace osu.Framework.Desktop.Platform
             }
         }
         
-        public override SQLiteConnection GetDatabase(string name)
+        public override SQLiteConnection GetDatabase(string name, SQLiteOpenFlags openFlags = SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create,
+            bool storeDateTimeAsTicks = true, IBlobSerializer serializer = null,
+            IDictionary<string, TableMapping> tableMappings = null,
+            IDictionary<Type, string> extraTypeMappings = null, IContractResolver resolver = null)
         {
             Directory.CreateDirectory(BasePath);
             ISQLitePlatform platform;
@@ -55,7 +59,7 @@ namespace osu.Framework.Desktop.Platform
                 platform = new SQLitePlatformWin32();
             else
                 platform = new SQLitePlatformGeneric();
-            return new SQLiteConnection(platform, Path.Combine(BasePath, $@"{name}.db"));
+            return new SQLiteConnection(platform, Path.Combine(BasePath, $@"{name}.db"), openFlags, storeDateTimeAsTicks, serializer, tableMappings, extraTypeMappings, resolver);
         }
     }
 }
